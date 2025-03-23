@@ -1,0 +1,17 @@
+.DS_Store
+/node_modules/
+
+# React Router
+/.react-router/
+/build/
+
+# OS 관련 파일
+.DS_Store   # macOS에서 생성되는 파일
+Thumbs.db   # Windows에서 생성되는 파일
+
+# 빌드 폴더
+dist/
+build/
+
+# 환경 파일
+.env
