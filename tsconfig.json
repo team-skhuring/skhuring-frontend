@@ -1,6 +1,7 @@
 {
   "include": [
-    "**/*",
+    "app/**/*",  // app 폴더 내 모든 파일
+    "components/**/*",  // components 폴더 내 모든 파일
     "**/.server/**/*",
     "**/.client/**/*",
     ".react-router/types/**/*"
