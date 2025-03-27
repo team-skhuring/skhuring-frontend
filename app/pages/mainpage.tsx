@@ -63,14 +63,14 @@ export default function MainPage() {
       </main>
 
       <section className="bg-gray-50 py-16 px-10 md:px-24">
-        <h2 className="text-4xl font-bold text-center mb-12">Services we offer</h2>
+        <h2 className="text-4xl font-bold text-center mb-12">Our Services</h2>
         <div className="grid md:grid-cols-4 gap-8">
-          <Card>
+          <Card className="border-2 border-purple-400">
             <CardContent className="text-center p-6">
               <FaMobileAlt size={40} className="mx-auto mb-4 text-purple-500" />
-              <h3 className="text-xl font-semibold mb-2">Mobile App Development</h3>
+              <h3 className="text-xl font-semibold mb-2">Real-time Mentoring</h3>
               <p className="text-gray-600 text-sm">
-                A Website is an extension of yourself and we can help you to express it properly.
+                실시간 채팅을 통해 누구나 멘토 또는 멘티가 되어 고민을 나누고 해결할 수 있습니다.
               </p>
             </CardContent>
           </Card>
@@ -78,34 +78,35 @@ export default function MainPage() {
           <Card className="border-2 border-purple-400">
             <CardContent className="text-center p-6">
               <FaLaptopCode size={40} className="mx-auto mb-4 text-purple-500" />
-              <h3 className="text-xl font-semibold mb-2">Web Design & Development</h3>
+              <h3 className="text-xl font-semibold mb-2">Various Consultation Fields</h3>
               <p className="text-gray-600 text-sm">
-                Your website is your number one marketing asset because we live in a digital age.
+                IT, 진로, 취업, 인간관계 등 다양한 분야의 고민을 부담 없이 상담할 수 있습니다.
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-2 border-purple-400">
             <CardContent className="text-center p-6">
               <FaBug size={40} className="mx-auto mb-4 text-purple-500" />
-              <h3 className="text-xl font-semibold mb-2">Software Testing Service</h3>
+              <h3 className="text-xl font-semibold mb-2">Earn Skumileage Points</h3>
               <p className="text-gray-600 text-sm">
-                We help you test and ensure your digital products meet quality standards.
+                멘토 활동을 하면 스쿰마일리지를 적립하여 다양한 혜택을 받을 수 있습니다.
               </p>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-2 border-purple-400">
             <CardContent className="text-center p-6">
               <FaCogs size={40} className="mx-auto mb-4 text-purple-500" />
-              <h3 className="text-xl font-semibold mb-2">Software Development</h3>
+              <h3 className="text-xl font-semibold mb-2">Supportive Community</h3>
               <p className="text-gray-600 text-sm">
-                Building robust software solutions tailored for your business goals.
+                따뜻한 커뮤니티에서 누구나 고민을 나누고 함께 성장할 수 있습니다.
               </p>
             </CardContent>
           </Card>
         </div>
-      </section>
+</section>
+
     </div>
   );
 }
