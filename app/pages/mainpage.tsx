@@ -3,27 +3,46 @@ import { Button } from "../components/ui/button";
 import Header from "../components/common/Header";
 import { Card, CardContent } from "../components/ui/card";
 import { motion } from "framer-motion";
-import { FaGoogle,  FaCogs, FaMobileAlt, FaLaptopCode, FaBug } from "react-icons/fa";
+import { FaGoogle, FaCogs, FaMobileAlt, FaLaptopCode, FaBug } from "react-icons/fa";
 
 export default function MainPage() {
+  const kakaoLogin = () => {
+    console.log("Kakao login clicked");
+    // 카카오 로그인 로직 추가
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-800">
-      <Header/>
+      <Header />
 
       <main className="grid md:grid-cols-2 items-center py-20 px-10 md:px-24 gap-10">
-        <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-        <h1 className="text-5xl font-bold leading-tight">
-            함께 <span className="text-purple-500">고민</span>하고 <br />함께 <span className="text-purple-500">성장</span>하는 공간
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-5xl font-bold leading-tight">
+            함께 <span className="text-purple-500">고민</span>하고 <br />
+            함께 <span className="text-purple-500">성장</span>하는 공간
           </h1>
           <p className="mt-6 text-lg text-gray-600">
             누군가 채팅방을 열면, 누구나 멘토가 되어 <br />
             실시간으로 고민을 듣고, 서로 도울 수 있는 따뜻한 커뮤니티
           </p>
-          <div className="mt-8 flex gap-4">
-            <Button className="bg-yellow-400 text-black flex gap-2 px-6 py-3 rounded-xl">
-              <FaGoogle size={20} /> 카카오로 시작하기
+          <div className="mt-8 flex flex-col md:flex-row gap-4">
+            {/* 카카오 로그인 버튼 */}
+            <Button
+              onClick={kakaoLogin}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-400 text-black border border-gray-300 hover:bg-yellow-500 w-full md:w-auto"
+            >
+              <img src="/public/kakao-login.png" alt="Kakao Login" className="h-6" />
             </Button>
-            <Button variant="outline" className="flex gap-2 px-6 py-3 rounded-xl border-gray-300">
+
+            {/* 구글 로그인 버튼 */}
+            <Button
+              variant="outline"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
+            >
               <FaGoogle size={20} /> Google로 시작하기
             </Button>
           </div>
@@ -34,13 +53,13 @@ export default function MainPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1 }}
-          >
-    <img
-      src="/skhuringMainpage.webp"
-      alt="Main visual"
-      className="w-full max-w-2xl object-contain"
-    />
-  </motion.div>
+        >
+          <img
+            src="/skhuringMainpage.webp"
+            alt="Main visual"
+            className="w-full max-w-2xl object-contain"
+          />
+        </motion.div>
       </main>
 
       <section className="bg-gray-50 py-16 px-10 md:px-24">
