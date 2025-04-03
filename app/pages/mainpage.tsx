@@ -5,12 +5,15 @@ import { Card, CardContent } from "../components/ui/card";
 import { motion } from "framer-motion";
 import { FaGoogle, FaCogs, FaMobileAlt, FaLaptopCode, FaBug } from "react-icons/fa";
 
-export default function MainPage() {
-  const kakaoLogin = () => {
-    console.log("Kakao login clicked");
-    // 카카오 로그인 로직 추가
-  };
 
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
+
+const googleLogin = () => {
+  const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid profile email`;
+  window.location.href = googleAuthUrl;
+};
+export default function MainPage() {
   return (
     <div className="min-h-screen bg-white text-gray-800">
       <Header />
@@ -32,7 +35,7 @@ export default function MainPage() {
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             {/* 카카오 로그인 버튼 */}
             <Button
-              onClick={kakaoLogin}
+
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-400 text-black border border-gray-300 hover:bg-yellow-500 w-full md:w-auto"
             >
               <img src="/public/kakao-login.png" alt="Kakao Login" className="h-6" />
@@ -40,6 +43,7 @@ export default function MainPage() {
 
             {/* 구글 로그인 버튼 */}
             <Button
+             onClick={googleLogin}
               variant="outline"
               className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
             >
@@ -100,7 +104,7 @@ export default function MainPage() {
               <FaCogs size={40} className="mx-auto mb-4 text-purple-500" />
               <h3 className="text-xl font-semibold mb-2">Supportive Community</h3>
               <p className="text-gray-600 text-sm">
-                따뜻한 커뮤니티에서 누구나 고민을 나누고 함께 성장할 수 있습니다.
+              따뜻한 커뮤니티에서 누구나 고민을 나누고 함께 성장할 수 있습니다.
               </p>
             </CardContent>
           </Card>
