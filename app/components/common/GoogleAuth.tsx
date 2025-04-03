@@ -1,0 +1,34 @@
+// src/components/GoogleAuth.tsx
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
+
+const GoogleAuth = () => {
+  const location = useLocation();
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get("code");
+
+    console.log(code);
+
+    if (code) {
+      sendCodeToServer(code);
+    }
+  }, [location]);
+
+  const sendCodeToServer = async (code: string) => {
+    try {
+      const response = await axios.post("http://localhost:8080/member/google/doLogin", { code });
+      const token = response.data.token;
+      localStorage.setItem("token", token);
+      window.location.href = "/"; // 인증 후 리디렉션
+    } catch (error) {
+      console.error("Google login error", error);
+    }
+  };
+
+  return <div>구글 로그인 진행중...</div>;
+};
+
+export default GoogleAuth;
