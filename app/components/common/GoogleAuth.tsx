@@ -21,7 +21,9 @@ const GoogleAuth = () => {
     try {
       const response = await axios.post("http://localhost:8080/member/google/doLogin", { code });
       const token = response.data.token;
+      const name = response.data.name;
       localStorage.setItem("token", token);
+      localStorage.setItem("name", name);
       window.location.href = "/"; // 인증 후 리디렉션
     } catch (error) {
       console.error("Google login error", error);
