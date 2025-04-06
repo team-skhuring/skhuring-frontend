@@ -14,6 +14,15 @@ const googleLogin = () => {
   window.location.href = googleAuthUrl;
 };
 export default function MainPage() {
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const name = localStorage.getItem("name");
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("name");
+    window.location.reload(); // 상태 초기화
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-800">
       <Header />
@@ -33,22 +42,32 @@ export default function MainPage() {
             실시간으로 고민을 듣고, 서로 도울 수 있는 따뜻한 커뮤니티
           </p>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
-            {/* 카카오 로그인 버튼 */}
-            <Button
+            {isLoggedIn ? (
+              <div className="flex items-center gap-4">
+                <span>어서오세요, <strong>{name}</strong>님</span>
+                <Button onClick={logout} variant="outline">
+                  로그아웃
+                </Button>
+              </div>
+            ) : (
+              <>
+              <Button
 
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-400 text-black border border-gray-300 hover:bg-yellow-500 w-full md:w-auto"
             >
               <img src="/public/kakao-login.png" alt="Kakao Login" className="h-6" />
             </Button>
 
-            {/* 구글 로그인 버튼 */}
             <Button
-             onClick={googleLogin}
-              variant="outline"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
+            onClick={googleLogin}
+            variant="outline"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
             >
-              <FaGoogle size={20} /> Google로 시작하기
+            <FaGoogle size={20} /> Google로 시작하기
             </Button>
+            </>
+            )}
+            
           </div>
         </motion.div>
 
