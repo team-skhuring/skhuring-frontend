@@ -15,7 +15,7 @@ const googleLogin = () => {
 };
 export default function MainPage() {
   const isLoggedIn = Boolean(localStorage.getItem("token"));
-  const name = localStorage.getItem("name");
+  const name = localStorage.getItem("name") ?? "";
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -25,9 +25,9 @@ export default function MainPage() {
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
-      <Header />
+      <Header name={name} />
 
-      <main className="grid md:grid-cols-2 items-center py-20 px-10 md:px-24 gap-10">
+      <main className="grid md:grid-cols-2 items-center py-20 px-10 md:px-36 lg:px-48 gap-16">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -43,19 +43,36 @@ export default function MainPage() {
           </p>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
             {isLoggedIn ? (
-              <div className="flex items-center gap-4">
-                <span>어서오세요, <strong>{name}</strong>님</span>
-                <Button onClick={logout} variant="outline">
+            <div className="flex flex-col items-start gap-4">
+              <p className="text-lg font-semibold text-gray-700">
+                  고민을 바로 공유하고 해결해봐요!!
+              </p>
+              <div className="flex flex-col md:flex-row items-center gap-4">
+                <Button
+                  onClick={() => {
+                    window.location.href = "/chatrooms";
+                  }}
+                  className="bg-purple-500 text-white hover:bg-purple-600 px-8 py-4 rounded-2xl shadow-md"
+                >
+                  채팅방 목록으로 가기
+                </Button>
+
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  className="border-gray-300 px-8 py-4 rounded-2xl shadow-md"
+                >
                   로그아웃
                 </Button>
               </div>
-            ) : (
+            </div>
+              ): (
               <>
               <Button
 
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-400 text-black border border-gray-300 hover:bg-yellow-500 w-full md:w-auto"
             >
-              <img src="/public/kakao-login.png" alt="Kakao Login" className="h-6" />
+              <img src="/kakao-login.png" alt="Kakao Login" className="h-6" />
             </Button>
 
             <Button
