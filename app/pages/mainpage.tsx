@@ -5,17 +5,29 @@ import { Card, CardContent } from "../components/ui/card";
 import { motion } from "framer-motion";
 import { FaGoogle, FaCogs, FaMobileAlt, FaLaptopCode, FaBug } from "react-icons/fa";
 
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const REDIRECT_URI = import.meta.env.VITE_GOOGLE_REDIRECT_URL;
+
+const googleLogin = () => {
+  const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid profile email`;
+  window.location.href = googleAuthUrl;
+};
 export default function MainPage() {
-  const kakaoLogin = () => {
-    console.log("Kakao login clicked");
-    // 카카오 로그인 로직 추가
+  const isLoggedIn = Boolean(localStorage.getItem("token"));
+  const name = localStorage.getItem("name") ?? "";
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("name");
+    window.location.reload(); // 상태 초기화
   };
 
   return (
     <div className="min-h-screen bg-white text-gray-800">
-      <Header />
+      <Header name={name} />
 
-      <main className="grid md:grid-cols-2 items-center py-20 px-10 md:px-24 gap-10">
+      <main className="grid md:grid-cols-2 items-center py-20 px-10 md:px-36 lg:px-48 gap-16">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -30,21 +42,49 @@ export default function MainPage() {
             실시간으로 고민을 듣고, 서로 도울 수 있는 따뜻한 커뮤니티
           </p>
           <div className="mt-8 flex flex-col md:flex-row gap-4">
-            {/* 카카오 로그인 버튼 */}
-            <Button
-              onClick={kakaoLogin}
+            {isLoggedIn ? (
+            <div className="flex flex-col items-start gap-4">
+              <p className="text-lg font-semibold text-gray-700">
+                  고민을 바로 공유하고 해결해봐요!!
+              </p>
+              <div className="flex flex-col md:flex-row items-center gap-4">
+                <Button
+                  onClick={() => {
+                    window.location.href = "/chatrooms";
+                  }}
+                  className="bg-purple-500 text-white hover:bg-purple-600 px-8 py-4 rounded-2xl shadow-md"
+                >
+                  채팅방 목록으로 가기
+                </Button>
+
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  className="border-gray-300 px-8 py-4 rounded-2xl shadow-md"
+                >
+                  로그아웃
+                </Button>
+              </div>
+            </div>
+              ): (
+              <>
+              <Button
+
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-400 text-black border border-gray-300 hover:bg-yellow-500 w-full md:w-auto"
             >
-              <img src="/public/kakao-login.png" alt="Kakao Login" className="h-6" />
+              <img src="/kakao-login.png" alt="Kakao Login" className="h-6" />
             </Button>
 
-            {/* 구글 로그인 버튼 */}
             <Button
-              variant="outline"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
+            onClick={googleLogin}
+            variant="outline"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
             >
-              <FaGoogle size={20} /> Google로 시작하기
+            <FaGoogle size={20} /> Google로 시작하기
             </Button>
+            </>
+            )}
+            
           </div>
         </motion.div>
 
@@ -100,7 +140,7 @@ export default function MainPage() {
               <FaCogs size={40} className="mx-auto mb-4 text-purple-500" />
               <h3 className="text-xl font-semibold mb-2">Supportive Community</h3>
               <p className="text-gray-600 text-sm">
-                따뜻한 커뮤니티에서 누구나 고민을 나누고 함께 성장할 수 있습니다.
+              따뜻한 커뮤니티에서 누구나 고민을 나누고 함께 성장할 수 있습니다.
               </p>
             </CardContent>
           </Card>
