@@ -19,8 +19,10 @@ const GoogleAuth = () => {
 
   const sendCodeToServer = async (code: string) => {
     try {
-      const response = await axios.post('/api/user/google/doLogin', { code });
-
+      const response = await axios.post(
+        'http://localhost:8080/member/google/doLogin',
+        { code }
+      );
       const token = response.data.token;
       const name = response.data.name;
       localStorage.setItem('token', token);

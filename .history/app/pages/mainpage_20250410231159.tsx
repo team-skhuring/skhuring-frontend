@@ -19,11 +19,8 @@ const googleLogin = () => {
   window.location.href = googleAuthUrl;
 };
 
-const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
-const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URL;
-
 const kakaoLogin = () => {
-  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}`;
+  const kakaoAuthUrl = ``;
   window.location.href = kakaoAuthUrl;
 };
 
@@ -81,20 +78,15 @@ export default function MainPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col md:flex-row gap-4 w-full">
-                {/* Kakao Button */}
-                <Button
-                  className="relative overflow-hidden h-12 min-w-[200px] rounded-xl border border-gray-300 p-0 w-full md:w-auto"
-                  onClick={kakaoLogin}
-                >
+              <>
+                <Button className="p-0 border-none bg-transparent hover:bg-transparent w-full md:w-auto h-12 min-w-[200px]">
                   <img
                     src="/kakao_login_medium_narrow.png"
                     alt="Kakao Login"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </Button>
 
-                {/* Google Button */}
                 <Button
                   onClick={googleLogin}
                   variant="outline"
@@ -102,7 +94,7 @@ export default function MainPage() {
                 >
                   <FaGoogle size={20} /> Google로 시작하기
                 </Button>
-              </div>
+              </>
             )}
           </div>
         </motion.div>

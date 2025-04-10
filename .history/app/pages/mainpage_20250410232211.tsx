@@ -19,11 +19,8 @@ const googleLogin = () => {
   window.location.href = googleAuthUrl;
 };
 
-const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
-const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URL;
-
 const kakaoLogin = () => {
-  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}`;
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI};`;
   window.location.href = kakaoAuthUrl;
 };
 
@@ -83,10 +80,7 @@ export default function MainPage() {
             ) : (
               <div className="flex flex-col md:flex-row gap-4 w-full">
                 {/* Kakao Button */}
-                <Button
-                  className="relative overflow-hidden h-12 min-w-[200px] rounded-xl border border-gray-300 p-0 w-full md:w-auto"
-                  onClick={kakaoLogin}
-                >
+                <Button className="relative overflow-hidden h-12 min-w-[200px] rounded-xl border border-gray-300 p-0 w-full md:w-auto">
                   <img
                     src="/kakao_login_medium_narrow.png"
                     alt="Kakao Login"
