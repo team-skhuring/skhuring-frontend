@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import Header from '../components/common/Header';
 import { Card, CardContent } from '../components/ui/card';
@@ -19,17 +20,23 @@ const googleLogin = () => {
   window.location.href = googleAuthUrl;
 };
 
-const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
-const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URL;
+// const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
+// const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URL;
 
-const kakaoLogin = () => {
-  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}`;
-  window.location.href = kakaoAuthUrl;
-};
+// const kakaoLogin = () => {
+//   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}`;
+//   window.location.href = kakaoAuthUrl;
+// };
 
 export default function MainPage() {
   const isLoggedIn = Boolean(localStorage.getItem('token'));
   const name = localStorage.getItem('name') ?? '';
+  const navigate = useNavigate();
+
+  const kakaoLoginStart = () => {
+    const baseUrl = import.meta.env.VITE_API_SERVER;
+    window.location.href = `${baseUrl}/user/kakao/loginStart`;
+  };
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -64,7 +71,7 @@ export default function MainPage() {
                 <div className="flex flex-col md:flex-row items-center gap-4">
                   <Button
                     onClick={() => {
-                      window.location.href = '/chatrooms';
+                      navigate('/chatrooms');
                     }}
                     className="bg-purple-500 text-white hover:bg-purple-600 px-8 py-4 rounded-2xl shadow-md"
                   >
@@ -85,7 +92,7 @@ export default function MainPage() {
                 {/* Kakao Button */}
                 <Button
                   className="relative overflow-hidden h-12 min-w-[200px] rounded-xl border border-gray-300 p-0 w-full md:w-auto"
-                  onClick={kakaoLogin}
+                  onClick={kakaoLoginStart}
                 >
                   <img
                     src="/kakao_login_medium_narrow.png"

@@ -1,9 +1,8 @@
-// src/components/GoogleAuth.tsx
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import axios from 'axios';
 
-const GoogleAuth = () => {
+const KakaoAuth = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,19 +19,18 @@ const GoogleAuth = () => {
 
   const sendCodeToServer = async (code: string) => {
     try {
-      const response = await axios.post('/api/user/google/doLogin', { code });
-
+      const response = await axios.post('/api/user/kakao/doLogin', { code });
       const token = response.data.token;
       const name = response.data.name;
       localStorage.setItem('token', token);
       localStorage.setItem('name', name);
-      navigate('/'); // 인증 후 리디렉션
+      navigate('/');
     } catch (error) {
-      console.error('Google login error', error);
+      console.error('Kakao login error', error);
     }
   };
 
   return <div>구글 로그인 진행중...</div>;
 };
 
-export default GoogleAuth;
+export default KakaoAuth;
