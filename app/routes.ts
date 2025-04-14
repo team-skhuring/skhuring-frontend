@@ -2,6 +2,8 @@
 import { type RouteConfig, index, route } from "@react-router/dev/routes";
 
 export default [
-  index("/Users/incheol/SkhuRing/skhuring-frontend/app/pages/home.tsx"), // 홈 페이지
-  route("/oauth/google/redirect", "/Users/incheol/SkhuRing/skhuring-frontend/app/components/common/GoogleAuth.tsx"), // 구글 로그인 페이지 추가
+  index('./pages/home.tsx'),
+  route('/oauth/google/redirect', './components/common/GoogleAuth.tsx'),
+  route("/mentoring-lounge", "./pages/mentoring-lounge.tsx"),
+  route("/mychat/:roomId", "./pages/ChatRoom.tsx"),
 ] satisfies RouteConfig;

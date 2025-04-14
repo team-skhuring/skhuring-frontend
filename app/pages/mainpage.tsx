@@ -50,7 +50,7 @@ export default function MainPage() {
               <div className="flex flex-col md:flex-row items-center gap-4">
                 <Button
                   onClick={() => {
-                    window.location.href = "/chatrooms";
+                    window.location.href = "/mentoring-lounge";
                   }}
                   className="bg-purple-500 text-white hover:bg-purple-600 px-8 py-4 rounded-2xl shadow-md"
                 >

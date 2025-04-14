@@ -5,13 +5,11 @@ import axios from "axios";
 
 const GoogleAuth = () => {
   const location = useLocation();
-  
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const code = params.get("code");
 
     console.log(code);
-
     if (code) {
       sendCodeToServer(code);
     }
