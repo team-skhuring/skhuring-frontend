@@ -15,8 +15,10 @@ const ChatRoom = () => {
   useEffect(() => {
     const sock = new SockJS('http://localhost:8080/connect');
     const stompClient = Stomp.over(sock);
-
-    stompClient.connect({}, () => {
+    const token = localStorage.getItem("token");
+    stompClient.connect({
+      Authorization : `Bearer ${token}`
+    }, () => {
       console.log('WebSocket connected');
 
       stompClient.subscribe(`/topic/1`, (message: any) => {
@@ -26,7 +28,6 @@ const ChatRoom = () => {
         }
         console.log(message.body);
       });
-
       setClient(stompClient); // 연결 완료 후 클라이언트 저장
     });
 
