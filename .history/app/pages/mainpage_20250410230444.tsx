@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import Header from '../components/common/Header';
 import { Card, CardContent } from '../components/ui/card';
@@ -19,19 +18,9 @@ const googleLogin = () => {
   const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=openid profile email`;
   window.location.href = googleAuthUrl;
 };
-
-const KAKAO_CLIENT_ID = import.meta.env.VITE_KAKAO_CLIENT_ID;
-const KAKAO_REDIRECT_URI = import.meta.env.VITE_KAKAO_REDIRECT_URL;
-
-const kakaoLoginStart = () => {
-  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${KAKAO_CLIENT_ID}&redirect_uri=${KAKAO_REDIRECT_URI}`;
-  window.location.href = kakaoAuthUrl;
-};
-
 export default function MainPage() {
   const isLoggedIn = Boolean(localStorage.getItem('token'));
   const name = localStorage.getItem('name') ?? '';
-  const navigate = useNavigate();
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -66,7 +55,7 @@ export default function MainPage() {
                 <div className="flex flex-col md:flex-row items-center gap-4">
                   <Button
                     onClick={() => {
-                      navigate('/chatrooms');
+                      window.location.href = '/chatrooms';
                     }}
                     className="bg-purple-500 text-white hover:bg-purple-600 px-8 py-4 rounded-2xl shadow-md"
                   >
@@ -83,28 +72,23 @@ export default function MainPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col md:flex-row gap-4 w-full">
-                {/* Kakao Button */}
-                <Button
-                  className="relative overflow-hidden h-12 min-w-[200px] rounded-xl border border-gray-300 p-0 w-full md:w-auto"
-                  onClick={kakaoLoginStart}
-                >
+              <>
+                <Button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-yellow-400 text-black border border-gray-300 hover:bg-yellow-500 w-full md:w-auto">
                   <img
-                    src="/kakao_login_medium_narrow.png"
+                    src="/kakao-login.png"
                     alt="Kakao Login"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="h-6"
                   />
                 </Button>
 
-                {/* Google Button */}
                 <Button
                   onClick={googleLogin}
                   variant="outline"
-                  className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto h-12 min-w-[200px]"
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl border-gray-300 w-full md:w-auto"
                 >
                   <FaGoogle size={20} /> Google로 시작하기
                 </Button>
-              </div>
+              </>
             )}
           </div>
         </motion.div>

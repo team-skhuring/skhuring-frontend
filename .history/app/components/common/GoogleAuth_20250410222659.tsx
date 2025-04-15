@@ -1,10 +1,9 @@
 // src/components/GoogleAuth.tsx
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const GoogleAuth = () => {
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -20,13 +19,14 @@ const GoogleAuth = () => {
 
   const sendCodeToServer = async (code: string) => {
     try {
-      const response = await axios.post('/api/user/google/doLogin', { code });
+      //const response = await axios.post('/api/member/google/doLogin', { code });
+      const response = await axios.post('/api/user/', { code });
 
       const token = response.data.token;
       const name = response.data.name;
       localStorage.setItem('token', token);
       localStorage.setItem('name', name);
-      navigate('/'); // 인증 후 리디렉션
+      window.location.href = '/'; // 인증 후 리디렉션
     } catch (error) {
       console.error('Google login error', error);
     }
