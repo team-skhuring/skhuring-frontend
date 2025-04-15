@@ -20,17 +20,17 @@ const KakaoAuth = () => {
   const sendCodeToServer = async (code: string) => {
     try {
       const response = await axios.post('/api/user/kakao/doLogin', { code });
-      const token = response.data.token;
-      const name = response.data.name;
-      localStorage.setItem('token', token);
-      localStorage.setItem('name', name);
+      // const token = response.data.token;
+      // const name = response.data.name;
+      // localStorage.setItem('token', token);
+      // localStorage.setItem('name', name);
       navigate('/');
     } catch (error) {
       console.error('Kakao login error', error);
     }
   };
 
-  return <div>구글 로그인 진행중...</div>;
+  return <div>카카오 로그인 진행중...</div>;
 };
 
 export default KakaoAuth;
