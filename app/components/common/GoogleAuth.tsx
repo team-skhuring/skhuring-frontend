@@ -12,7 +12,6 @@ const GoogleAuth = () => {
     const code = params.get('code');
 
     console.log(code);
-
     if (code) {
       sendCodeToServer(code);
     }
