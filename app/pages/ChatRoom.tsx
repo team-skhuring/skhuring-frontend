@@ -13,7 +13,7 @@ const ChatRoom = () => {
   const [client, setClient] = useState<any>(null); // 수정: client를 useState로 관리
 
   useEffect(() => {
-    const sock = new SockJS('http://localhost:8080/connect');
+    const sock = new SockJS('/api/connect');
     const stompClient = Stomp.over(sock);
     const token = localStorage.getItem("token");
     stompClient.connect({
