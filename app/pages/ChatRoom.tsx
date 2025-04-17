@@ -1,4 +1,3 @@
-// ChatRoom.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
@@ -9,35 +8,35 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
-
-  const [client, setClient] = useState<any>(null); // 수정: client를 useState로 관리
+  const [client, setClient] = useState<any>(null);
 
   useEffect(() => {
     const sock = new SockJS('/api/connect');
     const stompClient = Stomp.over(sock);
     const token = localStorage.getItem("token");
-    stompClient.connect({
-      Authorization : `Bearer ${token}`
-    }, () => {
-      console.log('WebSocket connected');
 
-      stompClient.subscribe(`/topic/1`, (message: any) => {
-        if (message.body) {
-          const body = JSON.parse(message.body);
-          const receivedMessage = body.message;
-      
-          // 동일한 메시지가 이미 있는지 확인 후 중복되지 않도록 처리
-          setMessages(prev => {
-            const isDuplicate = prev.some(msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender);
-            if (isDuplicate) {
-              return prev; // 이미 있는 메시지라면 상태 변경 안 함
-            }
-            return [...prev, receivedMessage];
-          });
-        }
-      });
-      setClient(stompClient); // 연결 완료 후 클라이언트 저장
-    });
+    stompClient.connect(
+      { Authorization: `Bearer ${token}` },
+      () => {
+        console.log('WebSocket connected');
+
+        stompClient.subscribe(`/topic/${roomId}`, (message: any) => {
+          if (message.body) {
+            const receivedMessage = JSON.parse(message.body);
+
+            setMessages(prev => {
+              const isDuplicate = prev.some(
+                msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender
+              );
+              if (isDuplicate) return prev;
+              return [...prev, receivedMessage];
+            });
+          }
+        });
+
+        setClient(stompClient);
+      }
+    );
 
     const handleBeforeUnload = () => {
       if (stompClient && stompClient.connected) {
@@ -47,10 +46,10 @@ const ChatRoom = () => {
       }
     };
 
-    // 이벤트 등록
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
       if (stompClient && stompClient.connected) {
         stompClient.disconnect(() => {
           console.log('WebSocket disconnected');
@@ -60,20 +59,21 @@ const ChatRoom = () => {
   }, [roomId]);
 
   const sendMessage = () => {
-    if (client && client.connected && newMessage.trim()) { // 내용이 비지 않으면
+    if (client && client.connected && newMessage.trim()) {
       const name = localStorage.getItem("name");
       const message = {
         sender: name,
         content: newMessage,
       };
-      client.send(`/publish/1`, {}, JSON.stringify({ message }));
+
+      client.send(`/publish/${roomId}`, {}, JSON.stringify(message));
       setMessages(prev => [...prev, message]);
-      setNewMessage(''); // 메시지 전송 후 입력창 초기화
+      setNewMessage('');
     } else {
       console.error('WebSocket is not connected or message is empty');
     }
   };
-  
+
   const handleKeyUp = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && newMessage.trim()) {
       sendMessage();
