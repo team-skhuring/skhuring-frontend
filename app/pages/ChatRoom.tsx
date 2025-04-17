@@ -39,6 +39,17 @@ const ChatRoom = () => {
       setClient(stompClient); // 연결 완료 후 클라이언트 저장
     });
 
+    const handleBeforeUnload = () => {
+      if (stompClient && stompClient.connected) {
+        stompClient.disconnect(() => {
+          console.log('WebSocket disconnected from beforeunload');
+        });
+      }
+    };
+
+    // 이벤트 등록
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     return () => {
       if (stompClient && stompClient.connected) {
         stompClient.disconnect(() => {
