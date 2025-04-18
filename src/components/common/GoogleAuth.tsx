@@ -1,9 +1,9 @@
 // src/components/GoogleAuth.tsx
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
 
-const GoogleAuth = () => {
+import axios from 'axios';
+export default function GoogleAuth() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -32,6 +32,4 @@ const GoogleAuth = () => {
   };
 
   return <div>구글 로그인 진행중...</div>;
-};
-
-export default GoogleAuth;
+}

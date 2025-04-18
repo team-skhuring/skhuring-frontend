@@ -1,18 +1,20 @@
 import { defineConfig } from 'vite';
-import { reactRouter } from '@react-router/dev/vite';
+import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import tsconfigPaths from 'vite-tsconfig-paths';
 
+// https://vite.dev/config/
 export default defineConfig({
-  plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   define: {
-    global: 'globalThis', // global을 globalThis로 정의
+    global: {},
   },
+  plugins: [react(), tailwindcss()],
   server: {
+    port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8070',
+        target: 'http://localhost:8070', // API 서버 주소
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
