@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 
 const ChatRoom = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -10,8 +11,13 @@ const ChatRoom = () => {
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
   const [client, setClient] = useState<any>(null);
 
+  const [showForm, setShowForm] = useState(false);
+  const [roomTitle, setRoomTitle] = useState('');
+  const [category, setCategory] = useState('IT'); // 예시 카테고리
+  const [anonymous, setAnonymous] = useState(false);
+
   useEffect(() => {
-    const sock = new SockJS('/api/connect');
+    const sock = new SockJS('http://localhost:8070/connect');
     const stompClient = Stomp.over(sock);
     const token = localStorage.getItem("token");
 
@@ -79,7 +85,30 @@ const ChatRoom = () => {
       sendMessage();
     }
   };
-  
+
+  const handleCreateRoom = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post('http://localhost:8070/chat/room', {
+        title: roomTitle,
+        category,
+        anonymous,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert('채팅방이 생성되었습니다!');
+      setRoomTitle('');
+      setCategory('STUDY');
+      setAnonymous(false);
+      setShowForm(false);
+    } catch (error) {
+      alert('채팅방 생성 실패');
+      console.error(error);
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -111,7 +140,6 @@ const ChatRoom = () => {
             return (
               <div key={idx} className={`mb-2 ${isMine ? 'flex justify-end' : 'flex justify-start'}`}>
                 <div className="flex items-end">
-                  {/* 이름 표시 */}
                   {!isMine && (
                     <div className="text-sm text-gray-500 mr-2">{msg.sender}</div>
                   )}
@@ -125,7 +153,6 @@ const ChatRoom = () => {
             );
           })}
         </div>
-
 
         {/* 입력창 */}
         <div className="mt-4 flex items-center">
@@ -150,10 +177,48 @@ const ChatRoom = () => {
       <div className="w-1/6 bg-white p-4 border-l">
         <div className="flex justify-between items-center mb-4">
           <div className="font-bold">Messages</div>
-          <button className="text-purple-500">+</button>
+          <button onClick={() => setShowForm(prev => !prev)} className="text-purple-500 text-xl">+</button>
         </div>
-        <div className="space-y-4">
-          {/* 친구목록은 하드코딩 */}
+
+        {/* 채팅방 생성 폼 */}
+        {showForm && (
+          <div className="space-y-2 p-2 border rounded">
+            <input
+              type="text"
+              placeholder="채팅방 주제"
+              className="w-full p-2 border rounded"
+              value={roomTitle}
+              onChange={(e) => setRoomTitle(e.target.value)}
+            />
+            <select
+              className="w-full p-2 border rounded"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="IT">IT</option>
+              <option value="진로">진로</option>
+              <option value="패션">패션</option>
+              <option value="창업">창업</option>
+            </select>
+            <label className="flex items-center space-x-2 text-sm">
+              <input
+                type="checkbox"
+                checked={anonymous}
+                onChange={(e) => setAnonymous(e.target.checked)}
+              />
+              <span>익명으로 참여</span>
+            </label>
+            <button
+              className="w-full bg-purple-500 text-white p-2 rounded"
+              onClick={handleCreateRoom}
+            >
+              생성
+            </button>
+          </div>
+        )}
+
+        {/* 친구목록 (하드코딩) */}
+        <div className="space-y-4 mt-4">
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gray-300 rounded-full" />
             <div>
@@ -161,7 +226,6 @@ const ChatRoom = () => {
               <div className="text-sm text-gray-500">woohooo 🔥</div>
             </div>
           </div>
-
           <div className="flex items-center space-x-2">
             <div className="w-10 h-10 bg-gray-300 rounded-full" />
             <div>
