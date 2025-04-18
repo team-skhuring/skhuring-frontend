@@ -13,7 +13,7 @@ const ChatRoom = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [roomTitle, setRoomTitle] = useState('');
-  const [category, setCategory] = useState('IT'); // 예시 카테고리
+  const [category, setCategory] = useState('IT');
   const [anonymous, setAnonymous] = useState(false);
 
   useEffect(() => {
@@ -22,12 +22,9 @@ const ChatRoom = () => {
     const token = localStorage.getItem('token');
 
     stompClient.connect({ Authorization: `Bearer ${token}` }, () => {
-      console.log('WebSocket connected');
-
       stompClient.subscribe(`/topic/${roomId}`, (message: any) => {
         if (message.body) {
           const receivedMessage = JSON.parse(message.body);
-
           setMessages((prev) => {
             const isDuplicate = prev.some(
               (msg) =>
@@ -39,15 +36,12 @@ const ChatRoom = () => {
           });
         }
       });
-
       setClient(stompClient);
     });
 
     const handleBeforeUnload = () => {
       if (stompClient && stompClient.connected) {
-        stompClient.disconnect(() => {
-          console.log('WebSocket disconnected from beforeunload');
-        });
+        stompClient.disconnect();
       }
     };
 
@@ -56,9 +50,7 @@ const ChatRoom = () => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (stompClient && stompClient.connected) {
-        stompClient.disconnect(() => {
-          console.log('WebSocket disconnected');
-        });
+        stompClient.disconnect();
       }
     };
   }, [roomId]);
@@ -66,16 +58,10 @@ const ChatRoom = () => {
   const sendMessage = () => {
     if (client && client.connected && newMessage.trim()) {
       const name = localStorage.getItem('name');
-      const message = {
-        sender: name,
-        content: newMessage,
-      };
-
+      const message = { sender: name, content: newMessage };
       client.send(`/publish/${roomId}`, {}, JSON.stringify(message));
       setMessages((prev) => [...prev, message]);
       setNewMessage('');
-    } else {
-      console.error('WebSocket is not connected or message is empty');
     }
   };
 
@@ -90,18 +76,9 @@ const ChatRoom = () => {
       const token = localStorage.getItem('token');
       await axios.post(
         'http://localhost:8070/chat/room',
-        {
-          title: roomTitle,
-          category,
-          anonymous,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { title: roomTitle, category, anonymous },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
       alert('채팅방이 생성되었습니다!');
       setRoomTitle('');
       setCategory('STUDY');
@@ -109,99 +86,80 @@ const ChatRoom = () => {
       setShowForm(false);
     } catch (error) {
       alert('채팅방 생성 실패');
-      console.error(error);
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* 왼쪽 사이드바 */}
-      <div className="w-1/6 bg-white p-4 flex flex-col justify-between border-r">
-        <div>
-          <div className="text-2xl font-bold mb-6">스쿠링</div>
-          <nav className="space-y-4">
-            <div className="text-gray-700 font-semibold">Chat</div>
-            <div className="text-gray-700 font-semibold">MyPage</div>
-          </nav>
-        </div>
-        <div className="text-sm text-gray-500">
-          <div>Evano</div>
-          <div>Project Manager</div>
-        </div>
-      </div>
-
-      {/* 중앙 채팅영역 */}
-      <div className="flex flex-col w-2/3 p-4">
-        <div className="border-b pb-4 mb-4">
-          <div className="text-xl font-bold">Chat Room {roomId}</div>
+    <div className="flex h-screen">
+      {/* Left Chat Area */}
+      <div className="flex flex-col w-3/4 border-r bg-white">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <div className="text-lg font-semibold">Florencio Dorrance</div>
+            <div className="text-sm text-green-500">● online</div>
+          </div>
+          <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded font-medium text-sm">
+            Call
+          </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto h-[400px]" ref={chatBoxRef}>
+        <div className="flex-1 overflow-y-auto p-6" ref={chatBoxRef}>
           {messages.map((msg, idx) => {
             const username = localStorage.getItem('name');
             const isMine = msg.sender === username;
             return (
               <div
                 key={idx}
-                className={`mb-2 ${
-                  isMine ? 'flex justify-end' : 'flex justify-start'
+                className={`mb-3 flex ${
+                  isMine ? 'justify-end' : 'justify-start'
                 }`}
               >
-                <div className="flex items-end">
-                  {!isMine && (
-                    <div className="text-sm text-gray-500 mr-2">
-                      {msg.sender}
-                    </div>
-                  )}
-                  <div
-                    className={`p-2 rounded-lg max-w-xs break-words ${
-                      isMine
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-300 text-black'
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
+                <div
+                  className={`max-w-xs p-3 rounded-lg text-sm ${
+                    isMine
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 text-gray-800'
+                  }`}
+                >
+                  {msg.content}
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* 입력창 */}
-        <div className="mt-4 flex items-center">
+        <div className="flex items-center p-4 border-t">
           <input
             type="text"
-            className="flex-1 p-2 rounded-lg border"
-            placeholder="Type your message..."
+            className="flex-1 border rounded-lg p-2"
+            placeholder="Type a message"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyUp={handleKeyUp}
           />
           <button
             onClick={sendMessage}
-            className="ml-2 px-4 py-2 bg-purple-500 text-white rounded-lg"
+            className="ml-2 text-white bg-blue-500 px-4 py-2 rounded-lg"
           >
-            Send
+            ➤
           </button>
         </div>
       </div>
 
-      {/* 오른쪽 메시지 리스트 */}
-      <div className="w-1/6 bg-white p-4 border-l">
+      {/* Right Message List */}
+      <div className="w-1/4 bg-white p-4 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <div className="font-bold">Messages</div>
+          <div className="font-semibold text-lg">Messages</div>
           <button
-            onClick={() => setShowForm((prev) => !prev)}
-            className="text-purple-500 text-xl"
+            onClick={() => setShowForm(!showForm)}
+            className="text-purple-500 text-2xl"
           >
-            +
+            ＋
           </button>
         </div>
 
-        {/* 채팅방 생성 폼 */}
         {showForm && (
-          <div className="space-y-2 p-2 border rounded">
+          <div className="p-3 border rounded space-y-3 mb-4">
             <input
               type="text"
               placeholder="채팅방 주제"
@@ -228,7 +186,7 @@ const ChatRoom = () => {
               <span>익명으로 참여</span>
             </label>
             <button
-              className="w-full bg-purple-500 text-white p-2 rounded"
+              className="w-full bg-purple-500 text-white py-2 rounded"
               onClick={handleCreateRoom}
             >
               생성
@@ -236,20 +194,19 @@ const ChatRoom = () => {
           </div>
         )}
 
-        {/* 친구목록 (하드코딩) */}
-        <div className="space-y-4 mt-4">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-300 rounded-full" />
+        <div className="space-y-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-gray-300" />
             <div>
-              <div className="font-semibold">Florencio Dorrance</div>
-              <div className="text-sm text-gray-500">woohooo 🔥</div>
+              <div className="font-semibold text-sm">Florencio Dorrance</div>
+              <div className="text-xs text-gray-500">woohooo 🔥</div>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gray-300 rounded-full" />
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full bg-gray-300" />
             <div>
-              <div className="font-semibold">Elmer Laverty</div>
-              <div className="text-sm text-gray-500">Haha oh man 😂</div>
+              <div className="font-semibold text-sm">Elmer Laverty</div>
+              <div className="text-xs text-gray-500">Haha oh man 😂</div>
             </div>
           </div>
         </div>

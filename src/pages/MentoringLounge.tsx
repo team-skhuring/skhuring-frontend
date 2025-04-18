@@ -1,51 +1,42 @@
-// src/pages/MentoringLounge.tsx
 import React, { useState } from 'react';
-import { Home, Users, MessageCircle, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const sidebarItems = [
-  { label: '홈', icon: <Home size={20} /> },
-  { label: '멘토링', icon: <Users size={20} /> },
-  { label: '메시지', icon: <MessageCircle size={20} /> },
-  { label: '설정', icon: <Settings size={20} /> },
-];
 
 const mentors = [
   {
     id: '1',
-    name: 'Floyd Miles',
+    name: '영어 회화 초보 탈출',
     category: '언어',
-    contact: '(205) 555-0100',
-    email: 'floyd@yahoo.com',
-    country: 'Kiribati',
-    status: 'Inactive',
+    mentor: 'Floyd Miles',
+    creator: '최지은',
+    count: '3명',
+    status: 'Active',
   },
   {
     id: '2',
-    name: 'Ronald Richards',
+    name: '개발자 진로 고민방',
     category: '진로',
-    contact: '(302) 555-0107',
-    email: 'ronald@adobe.com',
-    country: 'Israel',
-    status: 'Inactive',
+    mentor: 'Ronald Richards',
+    creator: '김민준',
+    count: '4명',
+    status: 'Active',
   },
   {
     id: '3',
-    name: 'Marvin McKinney',
+    name: '경제 스터디 그룹',
     category: '경제',
-    contact: '(252) 555-0126',
-    email: 'marvin@tesla.com',
-    country: 'Iran',
+    mentor: 'Marvin McKinney',
+    creator: '이수정',
+    count: '5명',
     status: 'Active',
   },
   {
     id: '4',
-    name: 'Jerome Bell',
+    name: '중간고사 대비반',
     category: '성적',
-    contact: '(629) 555-0129',
-    email: 'jerome@google.com',
-    country: 'Réunion',
-    status: 'Active',
+    mentor: 'Jerome Bell',
+    creator: '정해인',
+    count: '3명',
+    status: 'Inactive',
   },
 ];
 
@@ -73,36 +64,20 @@ export default function MentoringLounge() {
   );
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-60 bg-white fixed h-full flex flex-col p-6">
-        <h2 className="text-2xl font-bold mb-8">멘토링 센터</h2>
-        <nav className="flex flex-col gap-4">
-          {sidebarItems.map((item, idx) => (
-            <button
-              key={idx}
-              className="flex items-center gap-3 p-2 hover:bg-gray-700 rounded"
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </aside>
+    <div className=" min-h-screen p-12">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-10">
+        Mentoring Lounge
+      </h1>
 
-      {/* Main Content */}
-      <main className="ml-64 flex-1 p-8 bg-gray-50">
-        <h1 className="text-3xl font-bold mb-8">Mentoring Lounge</h1>
-
-        {/* 검색 + 카테고리 */}
-        <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 justify-between mb-10">
+        <div className="flex items-center gap-4 flex-1">
           <input
             type="text"
             placeholder="Search"
-            className="border p-2 rounded w-1/3"
+            className="bg-[#f1f5f9] text-sm text-gray-600 border border-gray-200 rounded-md px-4 py-2 w-1/3 placeholder:text-gray-400"
           />
-          <select className="border p-2 rounded w-1/4">
-            <option>Category</option>
+          <select className="bg-[#f1f5f9] text-sm text-gray-600 border border-gray-200 rounded-md px-4 py-2 w-1/4">
+            <option>category</option>
             <option>IT</option>
             <option>언어</option>
             <option>진로</option>
@@ -111,72 +86,67 @@ export default function MentoringLounge() {
             <option>교재 나눔</option>
           </select>
         </div>
-
-        <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button className="bg-[#6366f1] text-white px-5 py-2 text-sm rounded-md hover:bg-[#4f46e5]">
           채팅방 만들기
         </button>
+      </div>
 
-        {/* 테이블 */}
-        <div className="overflow-x-auto bg-white rounded-lg shadow">
-          <table className="min-w-full">
-            <thead className="bg-gray-100 text-gray-600 uppercase text-sm">
-              <tr>
-                <th className="py-3 px-6 text-left">주제</th>
-                <th className="py-3 px-6 text-left">카테고리</th>
-                <th className="py-3 px-6 text-left">연락처</th>
-                <th className="py-3 px-6 text-left">이메일</th>
-                <th className="py-3 px-6 text-left">국가</th>
-                <th className="py-3 px-6 text-center">상태</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentMentors.map((mentor, idx) => (
-                <tr
-                  key={idx}
-                  className="border-b hover:bg-gray-100"
-                  onClick={() => handleRowClick(mentor.id)}
-                >
-                  <td className="py-3 px-6">{mentor.name}</td>
-                  <td className="py-3 px-6">{mentor.category}</td>
-                  <td className="py-3 px-6">{mentor.contact}</td>
-                  <td className="py-3 px-6">{mentor.email}</td>
-                  <td className="py-3 px-6">{mentor.country}</td>
-                  <td className="py-3 px-6 text-center">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        mentor.status === 'Active'
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-red-100 text-red-600'
-                      }`}
-                    >
-                      {mentor.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 페이지네이션 */}
-        <div className="flex justify-center mt-6 gap-2">
-          {Array.from({ length: totalPages }, (_, idx) => idx + 1).map(
-            (page) => (
-              <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-4 py-2 rounded ${
-                  page === currentPage
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white border text-gray-700'
-                }`}
+      <div className="overflow-x-auto bg-white rounded-xl shadow-sm">
+        <table className="min-w-full text-sm">
+          <thead className="text-gray-400 text-xs border-b">
+            <tr className="uppercase">
+              <th className="py-3 px-6 text-left font-medium">주제</th>
+              <th className="py-3 px-6 text-left font-medium">카테고리</th>
+              <th className="py-3 px-6 text-left font-medium">멘토</th>
+              <th className="py-3 px-6 text-left font-medium">생성자</th>
+              <th className="py-3 px-6 text-left font-medium">인원수</th>
+              <th className="py-3 px-6 text-center font-medium">입장</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-700">
+            {currentMentors.map((mentor, idx) => (
+              <tr
+                key={idx}
+                className="border-b hover:bg-[#f8fafc] cursor-pointer"
+                onClick={() => handleRowClick(mentor.id)}
               >
-                {page}
-              </button>
-            )
-          )}
-        </div>
-      </main>
+                <td className="py-4 px-6 font-medium">{mentor.name}</td>
+                <td className="py-4 px-6">{mentor.category}</td>
+                <td className="py-4 px-6">{mentor.mentor}</td>
+                <td className="py-4 px-6">{mentor.creator}</td>
+                <td className="py-4 px-6">{mentor.count}</td>
+                <td className="py-4 px-6 text-center">
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                      mentor.status === 'Active'
+                        ? 'bg-emerald-100 text-emerald-600'
+                        : 'bg-red-100 text-red-500'
+                    }`}
+                  >
+                    {mentor.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex justify-center mt-10 gap-1">
+        {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={`w-8 h-8 text-sm rounded-md border flex items-center justify-center ${
+              page === currentPage
+                ? 'bg-[#6366f1] text-white'
+                : 'bg-white text-gray-600'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
