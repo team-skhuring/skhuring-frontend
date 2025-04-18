@@ -15,21 +15,24 @@ const ChatRoom = () => {
   useEffect(() => {
     const sock = new SockJS('/api/connect');
     const stompClient = Stomp.over(sock);
-    const token = localStorage.getItem("token");
-    stompClient.connect({
-      Authorization : `Bearer ${token}`
-    }, () => {
-      console.log('WebSocket connected');
+    const token = localStorage.getItem('token');
+    stompClient.connect(
+      {
+        Authorization: `Bearer ${token}`,
+      },
+      () => {
+        console.log('WebSocket connected');
 
-      stompClient.subscribe(`/topic/1`, (message: any) => {
-        if (message.body) {
-          const receivedMessage = JSON.parse(message.body);
-          setMessages(prev => [...prev, receivedMessage]);
-        }
-        console.log(message.body);
-      });
-      setClient(stompClient); // 연결 완료 후 클라이언트 저장
-    });
+        stompClient.subscribe(`/topic/1`, (message: any) => {
+          if (message.body) {
+            const receivedMessage = JSON.parse(message.body);
+            setMessages((prev) => [...prev, receivedMessage]);
+          }
+          console.log(message.body);
+        });
+        setClient(stompClient); // 연결 완료 후 클라이언트 저장
+      }
+    );
 
     return () => {
       if (stompClient && stompClient.connected) {
@@ -43,11 +46,11 @@ const ChatRoom = () => {
   const sendMessage = () => {
     if (client && client.connected) {
       const message = {
-        sender: 'Me', 
+        sender: 'Me',
         content: newMessage,
       };
       client.send(`/publish/1`, {}, JSON.stringify({ message }));
-      setMessages(prev => [...prev, message]);
+      setMessages((prev) => [...prev, message]);
       setNewMessage('');
     } else {
       console.error('WebSocket is not connected yet');
@@ -86,8 +89,19 @@ const ChatRoom = () => {
         {/* 메시지 뿌려주는 곳 */}
         <div className="flex-1 overflow-y-auto" ref={chatBoxRef}>
           {messages.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.sender === 'Me' ? 'justify-end' : 'justify-start'} mb-2`}>
-              <div className={`p-2 rounded-lg ${msg.sender === 'Me' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}>
+            <div
+              key={idx}
+              className={`flex ${
+                msg.sender === 'Me' ? 'justify-end' : 'justify-start'
+              } mb-2`}
+            >
+              <div
+                className={`p-2 rounded-lg ${
+                  msg.sender === 'Me'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-300 text-black'
+                }`}
+              >
                 {msg.content}
               </div>
             </div>

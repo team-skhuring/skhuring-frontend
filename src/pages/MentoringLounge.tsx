@@ -1,54 +1,43 @@
 // src/pages/MentoringLounge.tsx
-import React, { useState } from "react";
-import { Home, Users, MessageCircle, Settings } from "lucide-react";
-import { useNavigate } from "react-router-dom"; 
-
-
-
-
-const sidebarItems = [
-  { label: "홈", icon: <Home size={20} /> },
-  { label: "멘토링", icon: <Users size={20} /> },
-  { label: "메시지", icon: <MessageCircle size={20} /> },
-  { label: "설정", icon: <Settings size={20} /> },
-];
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const mentors = [
   {
-    id:"1",
-    name: "Floyd Miles",
-    category: "언어",
-    contact: "(205) 555-0100",
-    email: "floyd@yahoo.com",
-    country: "Kiribati",
-    status: "Inactive",
+    id: '1',
+    name: 'Floyd Miles',
+    category: '언어',
+    contact: '(205) 555-0100',
+    email: 'floyd@yahoo.com',
+    country: 'Kiribati',
+    status: 'Inactive',
   },
   {
-    id:"2",
-    name: "Ronald Richards",
-    category: "진로",
-    contact: "(302) 555-0107",
-    email: "ronald@adobe.com",
-    country: "Israel",
-    status: "Inactive",
+    id: '2',
+    name: 'Ronald Richards',
+    category: '진로',
+    contact: '(302) 555-0107',
+    email: 'ronald@adobe.com',
+    country: 'Israel',
+    status: 'Inactive',
   },
   {
-    id:"3",
-    name: "Marvin McKinney",
-    category: "경제",
-    contact: "(252) 555-0126",
-    email: "marvin@tesla.com",
-    country: "Iran",
-    status: "Active",
+    id: '3',
+    name: 'Marvin McKinney',
+    category: '경제',
+    contact: '(252) 555-0126',
+    email: 'marvin@tesla.com',
+    country: 'Iran',
+    status: 'Active',
   },
   {
-    id:"4",
-    name: "Jerome Bell",
-    category: "성적",
-    contact: "(629) 555-0129",
-    email: "jerome@google.com",
-    country: "Réunion",
-    status: "Active",
+    id: '4',
+    name: 'Jerome Bell',
+    category: '성적',
+    contact: '(629) 555-0129',
+    email: 'jerome@google.com',
+    country: 'Réunion',
+    status: 'Active',
   },
 ];
 
@@ -77,19 +66,6 @@ export default function MentoringLounge() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-60 bg-white fixed h-full flex flex-col p-6">
-        <h2 className="text-2xl font-bold mb-8">멘토링 센터</h2>
-        <nav className="flex flex-col gap-4">
-          {sidebarItems.map((item, idx) => (
-            <button key={idx} className="flex items-center gap-3 p-2 hover:bg-gray-700 rounded">
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-      </aside>
-
       {/* Main Content */}
       <main className="ml-64 flex-1 p-8 bg-gray-50">
         <h1 className="text-3xl font-bold mb-8">Mentoring Lounge</h1>
@@ -131,8 +107,11 @@ export default function MentoringLounge() {
             </thead>
             <tbody>
               {currentMentors.map((mentor, idx) => (
-                <tr key={idx} className="border-b hover:bg-gray-100"
-                onClick={() => handleRowClick(mentor.id)}>
+                <tr
+                  key={idx}
+                  className="border-b hover:bg-gray-100"
+                  onClick={() => handleRowClick(mentor.id)}
+                >
                   <td className="py-3 px-6">{mentor.name}</td>
                   <td className="py-3 px-6">{mentor.category}</td>
                   <td className="py-3 px-6">{mentor.contact}</td>
@@ -141,9 +120,9 @@ export default function MentoringLounge() {
                   <td className="py-3 px-6 text-center">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        mentor.status === "Active"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
+                        mentor.status === 'Active'
+                          ? 'bg-green-100 text-green-600'
+                          : 'bg-red-100 text-red-600'
                       }`}
                     >
                       {mentor.status}
@@ -157,19 +136,21 @@ export default function MentoringLounge() {
 
         {/* 페이지네이션 */}
         <div className="flex justify-center mt-6 gap-2">
-          {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`px-4 py-2 rounded ${
-                page === currentPage
-                  ? "bg-blue-500 text-white"
-                  : "bg-white border text-gray-700"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
+          {Array.from({ length: totalPages }, (_, idx) => idx + 1).map(
+            (page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-4 py-2 rounded ${
+                  page === currentPage
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-white border text-gray-700'
+                }`}
+              >
+                {page}
+              </button>
+            )
+          )}
         </div>
       </main>
     </div>
