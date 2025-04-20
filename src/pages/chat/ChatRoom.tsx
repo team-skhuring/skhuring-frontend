@@ -13,35 +13,42 @@ const ChatRoom = () => {
 
   const [showForm, setShowForm] = useState(false);
   const [roomTitle, setRoomTitle] = useState('');
-  const [category, setCategory] = useState('IT');
+  const [category, setCategory] = useState('IT'); // 예시 카테고리
   const [anonymous, setAnonymous] = useState(false);
 
   useEffect(() => {
     const sock = new SockJS('http://localhost:8070/connect');
     const stompClient = Stomp.over(sock);
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
-    stompClient.connect({ Authorization: `Bearer ${token}` }, () => {
-      stompClient.subscribe(`/topic/${roomId}`, (message: any) => {
-        if (message.body) {
-          const receivedMessage = JSON.parse(message.body);
-          setMessages((prev) => {
-            const isDuplicate = prev.some(
-              (msg) =>
-                msg.content === receivedMessage.content &&
-                msg.sender === receivedMessage.sender
-            );
-            if (isDuplicate) return prev;
-            return [...prev, receivedMessage];
-          });
-        }
-      });
-      setClient(stompClient);
-    });
+    stompClient.connect(
+      { Authorization: `Bearer ${token}` },
+      () => {
+        console.log('WebSocket connected');
+
+        stompClient.subscribe(`/topic/${roomId}`, (message: any) => {
+          if (message.body) {
+            const receivedMessage = JSON.parse(message.body);
+
+            setMessages(prev => {
+              const isDuplicate = prev.some(
+                msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender
+              );
+              if (isDuplicate) return prev;
+              return [...prev, receivedMessage];
+            });
+          }
+        });
+
+        setClient(stompClient);
+      }
+    );
 
     const handleBeforeUnload = () => {
       if (stompClient && stompClient.connected) {
-        stompClient.disconnect();
+        stompClient.disconnect(() => {
+          console.log('WebSocket disconnected from beforeunload');
+        });
       }
     };
 
@@ -50,18 +57,26 @@ const ChatRoom = () => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (stompClient && stompClient.connected) {
-        stompClient.disconnect();
+        stompClient.disconnect(() => {
+          console.log('WebSocket disconnected');
+        });
       }
     };
   }, [roomId]);
 
   const sendMessage = () => {
     if (client && client.connected && newMessage.trim()) {
-      const name = localStorage.getItem('name');
-      const message = { sender: name, content: newMessage };
+      const name = localStorage.getItem("name");
+      const message = {
+        sender: name,
+        content: newMessage,
+      };
+
       client.send(`/publish/${roomId}`, {}, JSON.stringify(message));
-      setMessages((prev) => [...prev, message]);
+      setMessages(prev => [...prev, message]);
       setNewMessage('');
+    } else {
+      console.error('WebSocket is not connected or message is empty');
     }
   };
 
@@ -73,12 +88,17 @@ const ChatRoom = () => {
 
   const handleCreateRoom = async () => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post(
-        'http://localhost:8070/chat/room',
-        { title: roomTitle, category, anonymous },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const token = localStorage.getItem("token");
+      await axios.post('http://localhost:8070/chat/room', {
+        title: roomTitle,
+        category,
+        anonymous,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       alert('채팅방이 생성되었습니다!');
       setRoomTitle('');
       setCategory('STUDY');
@@ -86,6 +106,7 @@ const ChatRoom = () => {
       setShowForm(false);
     } catch (error) {
       alert('채팅방 생성 실패');
+      console.error(error);
     }
   };
 
