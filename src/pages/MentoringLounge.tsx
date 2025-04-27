@@ -16,8 +16,10 @@ export default function MentoringLounge() {
 
   const totalPages = Math.ceil(mentors.length / itemsPerPage);
 
-  const handleRowClick = (roomId: string) => {
-    navigate(`/mychat/${roomId}`);
+  const handleRowClick = (roomId: string, roomTitle: string) => {
+    navigate(`/mychat/${roomId}`, {
+      state: { roomTitle: roomTitle },
+    });
   };
 
   const handlePageChange = (page: number) => {
@@ -168,7 +170,8 @@ export default function MentoringLounge() {
               <tr
                 key={idx}
                 className="border-b hover:bg-[#f8fafc] cursor-pointer"
-                onClick={() => handleRowClick(mentor.id)}
+                onClick={() => handleRowClick(mentor.id, mentor.name)}
+
               >
                 <td className="py-4 px-6 font-medium">{mentor.name}</td>
                 <td className="py-4 px-6">{mentor.category}</td>
