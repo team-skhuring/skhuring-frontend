@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const ChatRoom = () => {
+  const navigate = useNavigate();
   const { roomId } = useParams<{ roomId: string }>();
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -19,6 +20,32 @@ const ChatRoom = () => {
   const [roomTitle, setRoomTitle] = useState('');
   const [category, setCategory] = useState('IT'); // 예시 카테고리
   const [anonymous, setAnonymous] = useState(false);
+  const [chatRooms, setChatRooms] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchChatRooms = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8070/chat/rooms/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setChatRooms(response.data);  // 서버에서 받은 채팅방 목록을 상태에 저장
+      } catch (error) {
+        console.error('채팅방 목록을 불러오는 데 실패했습니다.', error);
+      }
+    };
+
+    fetchChatRooms();
+  }, []);
+  useEffect(() => {
+    console.log(chatRooms);  // chatRooms 상태 값 확인
+  }, [chatRooms]);
+  const handleJoinRoom = (roomId: string, roomTitle: string) => {
+    // 채팅방 제목을 클릭하면 해당 채팅방으로 이동
+    navigate(`/mychat/${roomId}`, { state: { roomTitle: roomTitle } });
+  };
 
   useEffect(() => {
     const fetchChatHistory = async () => {
@@ -37,6 +64,8 @@ const ChatRoom = () => {
 
     fetchChatHistory();
   }, [roomId]);
+
+  
 
   useEffect(() => {
     const sock = new SockJS('http://localhost:8070/connect');
@@ -132,6 +161,7 @@ const ChatRoom = () => {
     }
   };
   
+  
 
   return (
     <div className="flex h-screen">
@@ -200,7 +230,7 @@ const ChatRoom = () => {
       {/* Right Message List */}
       <div className="w-1/4 bg-white p-4 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
-          <div className="font-semibold text-lg">Messages</div>
+          <div className="font-semibold text-lg">My Chat</div>
           <button
             onClick={() => setShowForm(!showForm)}
             className="text-purple-500 text-2xl"
@@ -247,21 +277,24 @@ const ChatRoom = () => {
         
 
         <div className="space-y-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300" />
-            <div>
-              <div className="font-semibold text-sm">Florencio Dorrance</div>
-              <div className="text-xs text-gray-500">woohooo 🔥</div>
-            </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300" />
-            <div>
-              <div className="font-semibold text-sm">Elmer Laverty</div>
-              <div className="text-xs text-gray-500">Haha oh man 😂</div>
+      {chatRooms.map((room) => (
+        <div key={room.roomId} className="flex items-center space-x-3">
+          {/* 채팅방의 이미지 또는 아이콘 */}
+          <div className="w-10 h-10 rounded-full bg-gray-300" />
+          
+          {/* 채팅방 제목과 최근 메시지 표시 */}
+          <div
+          onClick={() => handleJoinRoom(room.roomId, room.title)}
+          >
+            <div className="font-semibold text-sm">{room.title}</div>
+            <div className="text-xs text-gray-500">
+              {/* 최근 메시지 또는 예시 텍스트 */}
+              {room.recentMessage || 'No messages yet'}
             </div>
           </div>
         </div>
+      ))}
+    </div>
       </div>
     </div>
   );
