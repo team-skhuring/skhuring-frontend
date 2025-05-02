@@ -1,32 +1,47 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Home,
   Users,
   MessageCircle,
-  Settings,
   LogOut,
   ChevronRight,
   ChevronDown,
 } from 'lucide-react';
 
 const sidebarItems = [
-  { label: 'mychat', icon: <MessageCircle size={18} />, active: false },
-  { label: 'mypage', icon: <Home size={18} />, active: false, chevron: true },
   {
     label: 'Mentoring Lounge',
     icon: <Users size={18} />,
     active: true,
+    location: '/mentoringLounge',
+  },
+  {
+    label: 'mychat',
+    icon: <MessageCircle size={18} />,
+    active: false,
     chevron: true,
+    location: '/mychat',
+  },
+  {
+    label: 'mypage',
+    icon: <Home size={18} />,
+    active: false,
+    chevron: true,
+    location: '/mypage',
   },
 ];
 
 export const Sidebar = () => {
+  const navigate = useNavigate();
   return (
     <aside className="w-64 bg-white h-screen flex flex-col justify-between p-6 shadow-[8px_0_30px_rgba(173,216,230,0.2)] z-10">
       {/* 상단 로고 */}
       <div>
         <div className="flex items-center justify-between mb-12">
-          <h1 className="font-black text-xl">스쿠링</h1>
+          <h1 className="font-black text-xl" onClick={() => navigate('/')}>
+            스쿠링
+          </h1>
           <span className="text-xs text-gray-400">v.01</span>
         </div>
 
@@ -43,6 +58,9 @@ export const Sidebar = () => {
                     : 'text-gray-500 hover:text-black'
                 }
               `}
+              onClick={() => {
+                navigate(item.location);
+              }}
             >
               <span className="flex items-center gap-3">
                 {item.icon}

@@ -8,6 +8,7 @@ import GoogleAuth from './components/common/GoogleAuth';
 import KakaoAuth from './components/common/KakaoAuth';
 import MentoringLounge from './pages/MentoringLounge';
 import ChatRoom from './pages/chat/ChatRoom';
+import MyPage from './pages/MyPage';
 
 export const router = createBrowserRouter([
   {
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
         children: [
           { path: 'mentoringLounge', element: <MentoringLounge /> },
           { path: 'mychat/:roomId', element: <ChatRoom /> },
+          { path: 'mypage', element: <MyPage /> },
         ],
       },
     ],
