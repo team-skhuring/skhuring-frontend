@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '../components/ui/card';
+
 import jaxios from '../util/JwtUtil'; // JWT 토큰을 자동으로 헤더에 추가하는 axios 인스턴스
+import Grade from '../components/layout/Grade'; // 등급 컴포넌트
 
 export default function MyPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [socialId, setSocialId] = useState('');
+  const [socialType, setSocialType] = useState(''); // 소셜 로그인 타입 (카카오, 구글)
   const [profileImage, setProfileImage] = useState('');
+  const [point, setPoint] = useState(0);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -20,7 +24,9 @@ export default function MyPage() {
           setName(data.name);
           setEmail(data.email);
           setSocialId(data.socialId);
+          setSocialType(data.socialType);
           setProfileImage(data.profileImage);
+          setPoint(data.point);
         }
         console.log('로그인 유저 정보', response.data);
         console.log('응답 확인', response.status);
@@ -63,7 +69,9 @@ export default function MyPage() {
             <span className="col-span-2">{email || '-'}</span>
 
             <label className="text-gray-600">Social ID</label>
-            <span className="col-span-2">{socialId}</span>
+            <span className="col-span-2">
+              {socialType} {socialId}
+            </span>
           </div>
 
           {/* <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
@@ -71,20 +79,11 @@ export default function MyPage() {
           </button> */}
         </div>
 
-        {/* Silver Badge */}
-        <div className="mt-12">
-          <div className="flex items-center space-x-2">
-            <span className="material-icons text-gray-500">shield</span>
-            <span className="text-lg font-medium">실버</span>
-          </div>
-          <div className="mt-2 w-full h-2 bg-gray-200 rounded-full">
-            <div className="w-2/3 h-full bg-gray-800 rounded-full" />
-          </div>
-          <div className="text-sm text-gray-500 mt-1">Silver | 671점</div>
-        </div>
+        {/* Badge */}
+        <Grade point={point} />
 
         {/* Mileage */}
-        <div className="mt-6 text-lg">SKHU 마일리지 : 0,000점</div>
+        <div className="mt-6 text-lg">SKHU 마일리지 : {point}점</div>
 
         {/* Memos */}
         <div className="mt-10">
