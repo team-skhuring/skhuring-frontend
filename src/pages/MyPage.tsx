@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '../components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 import jaxios from '../util/JwtUtil'; // JWT 토큰을 자동으로 헤더에 추가하는 axios 인스턴스
 import Grade from '../components/layout/Grade'; // 등급 컴포넌트
@@ -12,31 +13,60 @@ export default function MyPage() {
   const [profileImage, setProfileImage] = useState('');
   const [point, setPoint] = useState(0);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const id = localStorage.getItem('id');
-      try {
-        const response = await jaxios.get('api/user/loginUserInfo', {
-          params: { id },
-        });
-        if (response.status === 200) {
-          const data = response.data.loginUser;
-          setName(data.name);
-          setEmail(data.email);
-          setSocialId(data.socialId);
-          setSocialType(data.socialType);
-          setProfileImage(data.profileImage);
-          setPoint(data.point);
-        }
-        console.log('로그인 유저 정보', response.data);
-        console.log('응답 확인', response.status);
-      } catch (error) {
-        console.error('로그인 유저 정보 불러오기 실패', error);
-      }
-    };
+  interface Memo {
+    title: string;
+    content: string;
+  } // 메모 타입 정의
+  const [memoList, setMemoList] = useState<Memo[]>([]);
 
-    fetchUserInfo();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const userId = localStorage.getItem('id');
+
+    if (!userId) {
+      navigate('/'); // 로그인 페이지로 이동
+    } else {
+      fetchUserInfo(Number(userId)); // 로그인 유저 정보 불러오기
+      fetchMemos(Number(userId)); // 메모 불러오기
+    }
   }, []);
+
+  /* 로그인 유저 정보 불러오기 */
+  const fetchUserInfo = async (userId: number) => {
+    try {
+      const response = await jaxios.get('api/user/loginUserInfo', {
+        params: { userId },
+      });
+      if (response.status === 200) {
+        const data = response.data.loginUser;
+        setName(data.name);
+        setEmail(data.email);
+        setSocialId(data.socialId);
+        setSocialType(data.socialType);
+        setProfileImage(data.profileImage);
+        setPoint(data.point);
+      }
+      console.log('로그인 유저 정보', response.data);
+    } catch (error) {
+      console.error('로그인 유저 정보 불러오기 실패', error);
+    }
+  };
+
+  /* 로그인 유저의 메모 정보 불러오기 */
+  const fetchMemos = async (userId: number) => {
+    try {
+      const response = await jaxios.get('api/memo/user', {
+        params: { userId },
+      });
+      if (response.status === 200) {
+        setMemoList(response.data);
+      }
+      console.log('메모 정보', response.data);
+    } catch (error) {
+      console.error('메모 불러오기 실패', error);
+    }
+  };
 
   return (
     <div className="min-h-screen p-12 bg-white">
@@ -89,37 +119,22 @@ export default function MyPage() {
         <div className="mt-10">
           <h2 className="text-xl font-semibold mb-4">작성한 메모</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="font-semibold">진료</div>
-                <div className="text-sm text-gray-600 truncate">
-                  가나다라마바사아자차카타파하
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="font-semibold">재배추</div>
-                <div className="text-sm text-gray-600 truncate">
-                  김재찌가 마라탕 먹볶이 집밥 담밥 안삼주 취...
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="font-semibold">시험대비</div>
-                <div className="text-sm text-gray-600 truncate">공부 방법</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="font-bold">Sample</div>
-                <div className="text-sm text-gray-600">sample</div>
-              </CardContent>
-            </Card>
+            {memoList.length > 0 ? (
+              memoList.map((memo, index) => (
+                <Card key={index}>
+                  <CardContent className="p-2">
+                    <div className="font-semibold">{memo.title}</div>
+                    <div className="text-sm text-gray-600 truncate">
+                      {memo.content}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-2 md:col-span-4 text-center text-gray-500">
+                작성한 메모가 없습니다.
+              </div>
+            )}
           </div>
         </div>
       </div>
