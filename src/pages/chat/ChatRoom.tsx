@@ -12,7 +12,6 @@ const ChatRoom = () => {
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
   const [client, setClient] = useState<any>(null);
 
-  
 
   const location = useLocation();
   const roomName = location.state?.roomTitle || '채팅방';
@@ -22,6 +21,75 @@ const ChatRoom = () => {
   const [anonymous, setAnonymous] = useState(false);
   const [chatRooms, setChatRooms] = useState<any[]>([]);
 
+  const [isLongPress, setIsLongPress] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isCreator, setIsCreator] = useState(false);
+
+  const handleMouseDown = () => {
+    const timer = setTimeout(() => {
+      setIsLongPress(true);
+    }, 600); // 600ms 이상 누르면 롱클릭으로 간주
+    setLongPressTimer(timer);
+  };
+
+  const handleMouseUp = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+  const handleCloseRoom = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`http://localhost:8070/chat/close/${roomId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('채팅방이 종료되었습니다.');
+      navigate('/mentoringLounge');
+    } catch (error) {
+      console.error("방 종료 실패", error);
+    }
+  };
+  
+  const handleExitRoom = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`http://localhost:8070/chat/leave/${roomId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('채팅방에서 나갔습니다.');
+      navigate('/mentoringLounge');
+    } catch (error) {
+      console.error("나가기 실패", error);
+    }
+  };
+
+  useEffect(() => {
+    // 채팅방 목록에서 방장 여부를 확인하여 isCreator 상태 업데이트
+    const currentRoom = chatRooms.find(room => String(room.roomId) === String(roomId));
+    if (currentRoom) {
+      setIsCreator(currentRoom.creator); // 해당 방의 creator 상태로 설정
+    }
+    console.log(currentRoom); // 현재 방 정보 확인
+    console.log(isCreator); // 방장 여부 확인
+  }, [chatRooms, roomId]);
+
+  useEffect(() => {
+    if (isLongPress) {
+      if (isCreator) {
+        const confirmClose = window.confirm('고민 해결 완료하시겠습니까?');
+        if (confirmClose) {
+          handleCloseRoom(); // 방장 종료 로직
+        }
+      } else {
+        const confirmExit = window.confirm('채팅방에서 나가시겠습니까?');
+        if (confirmExit) {
+          handleExitRoom(); // 참가자 나가기 로직
+        }
+      }
+      setIsLongPress(false); // 초기화
+    }
+  }, [isLongPress]);
   useEffect(() => {
     const fetchChatRooms = async () => {
       try {
@@ -285,6 +353,8 @@ const ChatRoom = () => {
           {/* 채팅방 제목과 최근 메시지 표시 */}
           <div
           onClick={() => handleJoinRoom(room.roomId, room.title)}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
           >
             <div className="font-semibold text-sm">{room.title}</div>
             <div className="text-xs text-gray-500">
