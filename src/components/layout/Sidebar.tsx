@@ -1,13 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Home,
-  Users,
-  MessageCircle,
-  LogOut,
-  ChevronRight,
-  ChevronDown,
-} from 'lucide-react';
+import { Home, Users, MessageCircle, LogOut, ChevronRight } from 'lucide-react';
 
 const sidebarItems = [
   {
@@ -20,14 +13,14 @@ const sidebarItems = [
     label: 'mychat',
     icon: <MessageCircle size={18} />,
     active: false,
-    chevron: true,
-    location: '/mychat',
+    chevron: false,
+    location: '/mychat/1',
   },
   {
     label: 'mypage',
     icon: <Home size={18} />,
     active: false,
-    chevron: true,
+    chevron: false,
     location: '/mypage',
   },
 ];

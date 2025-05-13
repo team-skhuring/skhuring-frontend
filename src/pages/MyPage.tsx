@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import jaxios from '../util/JwtUtil'; // JWT 토큰을 자동으로 헤더에 추가하는 axios 인스턴스
 import Grade from '../components/layout/Grade'; // 등급 컴포넌트
+import MemoModal from '../components/layout/MemoModal';
 
 export default function MyPage() {
   const [name, setName] = useState('');
@@ -13,17 +14,21 @@ export default function MyPage() {
   const [profileImage, setProfileImage] = useState('');
   const [point, setPoint] = useState(0);
 
-  interface Memo {
+  interface MemoResDto {
+    id: number;
     title: string;
     content: string;
   } // 메모 타입 정의
-  const [memoList, setMemoList] = useState<Memo[]>([]);
+  const [memoList, setMemoList] = useState<MemoResDto[]>([]);
+  const [selectedMemoId, setSelectedMemoId] = useState<number | null>(null);
+  const [editedTitle, setEditedTitle] = useState('');
+  const [editedContent, setEditedContent] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const userId = localStorage.getItem('id');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userId = localStorage.getItem('id');
-
     if (!userId) {
       navigate('/'); // 로그인 페이지로 이동
     } else {
@@ -66,6 +71,70 @@ export default function MyPage() {
     } catch (error) {
       console.error('메모 불러오기 실패', error);
     }
+  };
+
+  const openModal = (memo: MemoResDto) => {
+    setSelectedMemoId(memo.id); // 실제 DB ID
+    setEditedTitle(memo.title);
+    setEditedContent(memo.content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedMemoId(null);
+  };
+
+  /* 메모 수정 */
+  const handleUpdateMemo = async () => {
+    const isConfirmed = window.confirm(
+      `${selectedMemoId} 번 메모를 수정하시겠습니까? `
+    );
+    if (!isConfirmed) return; // 수정 취소
+
+    if (selectedMemoId === null) return;
+
+    try {
+      const response = await jaxios.put('api/memo/update', {
+        id: selectedMemoId,
+        title: editedTitle,
+        content: editedContent,
+      });
+      if (response.status === 200) {
+        alert('메모가 수정되었습니다');
+        console.log('메모 수정 성공', response.data);
+      }
+    } catch (error) {
+      alert('메모 수정에 실패했습니다');
+      console.error('메모 수정 실패', error);
+    }
+
+    fetchMemos(Number(userId)); // 메모 목록 새로고침
+  };
+
+  /* 메모 삭제 */
+  const handleDeleteMemo = async () => {
+    const isConfirmed = window.confirm(
+      `${selectedMemoId}번 메모를 삭제하시겠습니까? `
+    );
+    if (!isConfirmed) return; // 삭제 취소
+
+    if (selectedMemoId === null) return;
+
+    try {
+      const response = await jaxios.delete('api/memo/delete', {
+        params: { memoId: selectedMemoId },
+      });
+      if (response.status === 200) {
+        alert('메모가 삭제되었습니다');
+        console.log('메모 삭제 성공', response.data);
+      }
+    } catch (error) {
+      alert('메모 삭제에 실패했습니다');
+      console.error('메모 삭제 실패', error);
+    }
+    closeModal(); // 모달 닫기
+    fetchMemos(Number(userId)); // 메모 목록 새로고침
   };
 
   return (
@@ -121,14 +190,20 @@ export default function MyPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {memoList.length > 0 ? (
               memoList.map((memo, index) => (
-                <Card key={index}>
-                  <CardContent className="p-2">
-                    <div className="font-semibold">{memo.title}</div>
-                    <div className="text-sm text-gray-600 truncate">
-                      {memo.content}
-                    </div>
-                  </CardContent>
-                </Card>
+                <div
+                  key={index}
+                  onClick={() => openModal(memo)}
+                  className="cursor-pointer"
+                >
+                  <Card className="h-full">
+                    <CardContent className="p-2">
+                      <div className="font-semibold">{memo.title}</div>
+                      <div className="text-sm text-gray-600 truncate">
+                        {memo.content}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               ))
             ) : (
               <div className="col-span-2 md:col-span-4 text-center text-gray-500">
@@ -138,6 +213,17 @@ export default function MyPage() {
           </div>
         </div>
       </div>
+
+      <MemoModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        editedTitle={editedTitle}
+        setEditedTitle={setEditedTitle}
+        editedContent={editedContent}
+        setEditedContent={setEditedContent}
+        onUpdateMemo={handleUpdateMemo}
+        onDeleteMemo={handleDeleteMemo}
+      />
     </div>
   );
 }
