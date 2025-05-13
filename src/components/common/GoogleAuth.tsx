@@ -20,11 +20,12 @@ export default function GoogleAuth() {
   const sendCodeToServer = async (code: string) => {
     try {
       const response = await axios.post('/api/user/google/doLogin', { code });
-
       const token = response.data.token;
       const name = response.data.name;
+      const id = response.data.id;
       localStorage.setItem('token', token);
       localStorage.setItem('name', name);
+      localStorage.setItem('id', id);
       navigate('/'); // 인증 후 리디렉션
     } catch (error) {
       console.error('Google login error', error);

@@ -22,8 +22,11 @@ const KakaoAuth = () => {
       const response = await axios.post('/api/user/kakao/doLogin', { code });
       const token = response.data.token;
       const name = response.data.name;
+      const id = response.data.id;
       localStorage.setItem('token', token);
       localStorage.setItem('name', name);
+      localStorage.setItem('id', id);
+
       navigate('/');
     } catch (error) {
       console.error('Kakao login error', error);
