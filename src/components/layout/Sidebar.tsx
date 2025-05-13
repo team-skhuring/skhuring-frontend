@@ -35,6 +35,12 @@ export const Sidebar = () => {
           <h1 className="font-black text-xl" onClick={() => navigate('/')}>
             스쿠링
           </h1>
+          <h1
+            className="font-black text-xl cursor-pointer"
+            onClick={() => navigate('/')}
+          >
+            스쿠링
+          </h1>
           <span className="text-xs text-gray-400">v.01</span>
         </div>
 
