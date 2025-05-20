@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import jaxios from '../util/JwtUtil'; // JWT 토큰을 자동으로 헤더에 추가하는 axios 인스턴스
 import Grade from '../components/layout/Grade'; // 등급 컴포넌트
 import MemoModal from '../components/layout/MemoModal';
+import ProfileEditModal from '../components/layout/ProfileEditModal';
+
+import { Pencil } from 'lucide-react';
 
 export default function MyPage() {
   const [name, setName] = useState('');
@@ -24,6 +27,7 @@ export default function MyPage() {
   const [editedTitle, setEditedTitle] = useState('');
   const [editedContent, setEditedContent] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const userId = localStorage.getItem('id');
   const navigate = useNavigate();
@@ -73,6 +77,30 @@ export default function MyPage() {
     }
   };
 
+  /* 프로필 수정 */
+  const handleUpdateProfile = async () => {
+    const isConfirmed = window.confirm(`프로필 정보를 수정하시겠습니까?`);
+
+    if (!isConfirmed || userId === null) return; // 수정 취소
+
+    try {
+      const response = await jaxios.put('api/user/update', {
+        id: userId,
+        name,
+        profileImage,
+      });
+      if (response.status === 200) {
+        alert('프로필 정보가 수정되었습니다');
+        console.log('프로필 수정 성공', response.data);
+      }
+    } catch (error) {
+      alert('프로필 수정에 실패했습니다');
+      console.error('프로필 수정 실패', error);
+    }
+
+    setIsEditModalOpen(false);
+  };
+
   const openModal = (memo: MemoResDto) => {
     setSelectedMemoId(memo.id); // 실제 DB ID
     setEditedTitle(memo.title);
@@ -90,9 +118,7 @@ export default function MyPage() {
     const isConfirmed = window.confirm(
       `${selectedMemoId} 번 메모를 수정하시겠습니까? `
     );
-    if (!isConfirmed) return; // 수정 취소
-
-    if (selectedMemoId === null) return;
+    if (!isConfirmed || selectedMemoId === null) return; // 수정 취소
 
     try {
       const response = await jaxios.put('api/memo/update', {
@@ -117,9 +143,7 @@ export default function MyPage() {
     const isConfirmed = window.confirm(
       `${selectedMemoId}번 메모를 삭제하시겠습니까? `
     );
-    if (!isConfirmed) return; // 삭제 취소
-
-    if (selectedMemoId === null) return;
+    if (!isConfirmed || selectedMemoId === null) return;
 
     try {
       const response = await jaxios.delete('api/memo/delete', {
@@ -148,12 +172,18 @@ export default function MyPage() {
               alt="Profile"
               className="rounded-full w-24 h-24"
             />
-            <button className="absolute bottom-0 right-0 bg-white p-1 rounded-full shadow">
-              <span className="material-icons">edit</span>
-            </button>
           </div>
           <div>
-            <h1 className="text-xl font-semibold">{name}</h1>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-xl font-semibold">{name}</h1>
+              <button
+                className="text-gray-500 hover:text-gray-700"
+                title="프로필 수정"
+                onClick={() => setIsEditModalOpen(true)}
+              >
+                <Pencil size={20} strokeWidth={1.5} />
+              </button>
+            </div>
             <p className="text-gray-500">{email || '-'}</p>
           </div>
         </div>
@@ -172,6 +202,16 @@ export default function MyPage() {
               {socialType} {socialId}
             </span>
           </div>
+
+          {/* Profile Edit Modal */}
+          <ProfileEditModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+            profileImage={profileImage}
+            name={name}
+            onNameChange={setName}
+            onUpdate={handleUpdateProfile}
+          />
 
           {/* <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Save Change
