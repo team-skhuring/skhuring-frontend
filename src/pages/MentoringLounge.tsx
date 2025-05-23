@@ -50,7 +50,7 @@ export default function MentoringLounge() {
 
   const handleRowClick = (roomId: string, roomTitle: string) => {
     navigate(`/mychat/${roomId}`, {
-      state: { roomTitle },
+      state: { roomTitle, mentors },
     });
   };
 

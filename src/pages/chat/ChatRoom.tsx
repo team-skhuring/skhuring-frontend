@@ -11,6 +11,7 @@ const ChatRoom = () => {
   const [newMessage, setNewMessage] = useState('');
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
   const [client, setClient] = useState<any>(null);
+  const [isSurveyOpen, setIsSurveyOpen] = useState(false);
 
 
   const location = useLocation();
@@ -24,6 +25,14 @@ const ChatRoom = () => {
   const [isLongPress, setIsLongPress] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isCreator, setIsCreator] = useState(false);
+  const [rating, setRating] = useState(0);
+
+  const handleSubmitRating = () => {
+    const score = rating * 5;
+    console.log("제출된 별점:", rating, "-> 전송 점수:", score);
+    handleCloseRoom(score); // 별점 기반 점수 전달
+    setIsSurveyOpen(false);
+  };
 
   const handleMouseDown = () => {
     const timer = setTimeout(() => {
@@ -38,14 +47,21 @@ const ChatRoom = () => {
       setLongPressTimer(null);
     }
   };
-  const handleCloseRoom = async () => {
+  const handleCloseRoom = async (score: number) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.post(`http://localhost:8070/chat/close/${roomId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      alert('채팅방이 종료되었습니다.');
-      navigate('/mentoringLounge');
+      await axios.post(
+        `http://localhost:8070/chat/close/${roomId}`,
+        { score }, // 별점 전달
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      alert("채팅방이 종료되었습니다.");
+      navigate("/mentoringLounge");
     } catch (error) {
       console.error("방 종료 실패", error);
     }
@@ -79,7 +95,8 @@ const ChatRoom = () => {
       if (isCreator) {
         const confirmClose = window.confirm('고민 해결 완료하시겠습니까?');
         if (confirmClose) {
-          handleCloseRoom(); // 방장 종료 로직
+          setIsSurveyOpen(true); // 설문조사 모달 열기
+         // handleCloseRoom(); // 방장 종료 로직
         }
       } else {
         const confirmExit = window.confirm('채팅방에서 나가시겠습니까?');
@@ -344,7 +361,7 @@ const ChatRoom = () => {
       )}
         
 
-        <div className="space-y-4">
+    <div className="space-y-4">
       {chatRooms.map((room) => (
         <div key={room.roomId} className="flex items-center space-x-3">
           {/* 채팅방의 이미지 또는 아이콘 */}
@@ -366,6 +383,46 @@ const ChatRoom = () => {
       ))}
     </div>
       </div>
+      {isSurveyOpen && (
+  <div className="fixed inset-0 flex items-center justify-center ">
+    <div className="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-sm text-center">
+      <h2 className="text-xl font-bold mb-4">멘토 평가</h2>
+      <p className="mb-4 text-gray-700">멘토링에 만족하셨나요? 별점으로 평가해주세요.</p>
+
+      {/* 별점 선택 */}
+      <div className="flex justify-center gap-1 mb-6">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            onClick={() => setRating(star)}
+            className={`text-3xl ${
+              rating >= star ? "text-yellow-400" : "text-gray-300"
+            }`}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+
+      {/* 버튼 영역 */}
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setIsSurveyOpen(false)}
+          className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+        >
+          닫기
+        </button>
+        <button
+          onClick={handleSubmitRating}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          제출
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
