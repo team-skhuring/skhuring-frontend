@@ -168,14 +168,15 @@ const ChatRoom = () => {
 
             setMessages(prev => {
               const isDuplicate = prev.some(
-                msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender
+                msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender && msg.messageType === receivedMessage.messageType
               );
+              console.log('Received message:', receivedMessage);
               if (isDuplicate) return prev;
               return [...prev, receivedMessage];
             });
           }
         });
-
+        
         setClient(stompClient);
       }
     );
@@ -245,8 +246,43 @@ const ChatRoom = () => {
       console.error(error);
     }
   };
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !client || !client.connected) return;
   
+    const formData = new FormData();
+    formData.append("file", file);
   
+    try {
+      const res = await fetch(`http://localhost:8070/chat/upload/${roomId}`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+      });
+  
+      if (!res.ok) throw new Error("Upload failed");
+  
+      const data = await res.json(); // 서버에서 문자열 형태로 반환받음
+      const imageUrl = data.url;
+  
+      client.send(
+        `/publish/${roomId}`, // sendMessage와 동일하게 publish 경로 사용
+        {},
+        JSON.stringify({
+          messageType: "IMAGE",
+          content: imageUrl,
+          sender: localStorage.getItem("name") || "unknown",
+          roomId,
+        })
+      );
+  
+    } catch (error) {
+      console.error("이미지 업로드 또는 전송 실패", error);
+    }
+  }
 
   return (
     <div className="flex h-screen">
@@ -268,49 +304,68 @@ const ChatRoom = () => {
     const isMine = msg.sender === username;
 
     return (
-      <div
-        key={idx}
-        className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-      >
-        {/* 이름은 상대방만 표시 */}
-        {!isMine && (
-          <span className="text-xs text-gray-500 mb-1 ml-2">
-            {msg.sender}
-          </span>
-        )}
-
-        {/* 말풍선 */}
         <div
-          className={`max-w-xs px-4 py-2 rounded-2xl text-sm shadow-md ${
-            isMine
-              ? 'bg-blue-500 text-white rounded-br-none'
-              : 'bg-gray-100 text-gray-800 rounded-bl-none'
-          }`}
+          key={idx}
+          className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
         >
-          {msg.content}
-        </div>
-      </div>
-    );
-  })}
-</div>
+          {/* 이름은 상대방만 표시 */}
+          {!isMine && (
+            <span className="text-xs text-gray-500 mb-1 ml-2">
+              {msg.sender}
+            </span>
+           
+          )}
 
-        <div className="flex items-center p-4 border-t">
-          <input
-            type="text"
-            className="flex-1 border rounded-lg p-2"
-            placeholder="Type a message"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyUp={handleKeyUp}
-          />
-          <button
-            onClick={sendMessage}
-            className="ml-2 text-white bg-blue-500 px-4 py-2 rounded-lg"
+          {/* 말풍선 */}
+          <div
+            className={`max-w-xs px-4 py-2 rounded-2xl text-sm shadow-md ${
+              isMine
+                ? 'bg-blue-500 text-white rounded-br-none'
+                : 'bg-gray-100 text-gray-800 rounded-bl-none'
+            }`}
           >
-            ➤
-          </button>
+         
+            {msg.messageType === 'IMAGE' ? (
+              <img
+                src={msg.content}
+                alt="uploaded"
+                className="max-w-full h-auto rounded-lg"
+              />
+            ) : (
+              <span>{msg.content}</span>
+            )}
+          </div>
         </div>
+      );
+    })}
+  </div>
+<div className="flex items-center p-4 border-t">
+      <input
+        type="text"
+        className="flex-1 border rounded-lg p-2"
+        placeholder="Type a message"
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        onKeyUp={handleKeyUp}
+      /> 
+      <label htmlFor="image-upload" className="ml-2 cursor-pointer text-white bg-purple-500 px-4 py-2 rounded-lg select-none">
+        📷
+      </label>
+      <input
+        id="image-upload"
+        type="file"
+        accept="image/*"
+       onChange={handleImageUpload}
+        className="hidden"
+      />
+      <button
+        onClick={sendMessage}
+        className="ml-2 text-white bg-blue-500 px-4 py-2 rounded-lg"
+      >
+        ➤
+      </button>
       </div>
+    </div>
 
       {/* Right Message List */}
       <div className="w-1/4 bg-white p-4 overflow-y-auto">
