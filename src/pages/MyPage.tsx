@@ -208,8 +208,9 @@ export default function MyPage() {
             isOpen={isEditModalOpen}
             onClose={() => setIsEditModalOpen(false)}
             profileImage={profileImage}
+            setProfileImage={setProfileImage}
             name={name}
-            onNameChange={setName}
+            setName={setName}
             onUpdate={handleUpdateProfile}
           />
 

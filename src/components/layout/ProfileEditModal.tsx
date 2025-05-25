@@ -7,28 +7,36 @@ interface ProfileEditModalProps {
   isOpen: boolean;
   onClose: () => void;
   profileImage: string;
+  setProfileImage?: (imageUrl: string) => void;
   name: string;
-  onNameChange: (name: string) => void;
+  setName: (name: string) => void;
   onUpdate: () => void;
 }
+
+const DEFAULT_IMAGE_URLS = [
+  'https://skhuring-default-images.s3.ap-northeast-2.amazonaws.com/default-images/cat.png',
+  'https://skhuring-default-images.s3.ap-northeast-2.amazonaws.com/default-images/man1.png',
+  'https://skhuring-default-images.s3.ap-northeast-2.amazonaws.com/default-images/man2.png',
+  'https://skhuring-default-images.s3.ap-northeast-2.amazonaws.com/default-images/man3.png',
+  'https://skhuring-default-images.s3.ap-northeast-2.amazonaws.com/default-images/woman1.png',
+  'https://skhuring-default-images.s3.ap-northeast-2.amazonaws.com/default-images/woman2.png',
+];
 
 const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   isOpen,
   onClose,
   profileImage,
+  setProfileImage,
   name,
-  onNameChange,
+  setName,
   onUpdate,
 }) => {
   return (
     <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50">
       <div className="flex items-center justify-center min-h-screen px-4">
-        {/* Overlay manually rendered */}
         <div className="fixed inset-0 bg-black opacity-30" onClick={onClose} />
 
-        {/* Modal content */}
         <div className="relative bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 z-50 space-y-6">
-          {/* Profile Image + Pencil Button */}
           <div className="relative w-24 h-24 mx-auto">
             <img
               src={profileImage}
@@ -43,7 +51,23 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             </button>
           </div>
 
-          {/* Name Field */}
+          {/* 기본 제공 프로필 사진 */}
+          <div className="grid grid-cols-3 gap-3">
+            {DEFAULT_IMAGE_URLS.map((url) => (
+              <button
+                key={url}
+                onClick={() => setProfileImage?.(url)}
+                className="rounded-full overflow-hidden w-16 h-16 border border-gray-300 hover:ring-2 hover:ring-blue-400"
+              >
+                <img
+                  src={url}
+                  alt="기본 이미지"
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               이름
@@ -51,12 +75,11 @@ const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             <input
               type="text"
               value={name}
-              onChange={(e) => onNameChange(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring focus:border-blue-500"
             />
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             <Button onClick={onUpdate} className="w-full">
               수정
