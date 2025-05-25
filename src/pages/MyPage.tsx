@@ -55,6 +55,7 @@ export default function MyPage() {
         setSocialType(data.socialType);
         setProfileImage(data.profileImage);
         setPoint(data.point);
+        localStorage.setItem('name', data.name);
       }
       console.log('로그인 유저 정보', response.data);
     } catch (error) {

@@ -142,6 +142,7 @@ const ChatRoom = () => {
           },
         });
         setMessages(response.data);
+        console.log('채팅 기록:', response.data);
       } catch (error) {
         console.error('채팅 기록을 불러오는 데 실패했습니다.', error);
       }
@@ -156,6 +157,7 @@ const ChatRoom = () => {
     const sock = new SockJS('http://localhost:8070/connect');
     const stompClient = Stomp.over(sock);
     const token = localStorage.getItem("token");
+    const socialId = localStorage.getItem('socialId');
 
     stompClient.connect(
       { Authorization: `Bearer ${token}` },
@@ -165,10 +167,10 @@ const ChatRoom = () => {
         stompClient.subscribe(`/topic/${roomId}`, (message: any) => {
           if (message.body) {
             const receivedMessage = JSON.parse(message.body);
-
+            if (receivedMessage.socialId === socialId) return;
             setMessages(prev => {
               const isDuplicate = prev.some(
-                msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender && msg.messageType === receivedMessage.messageType
+                msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender && msg.messageType === receivedMessage.messageType && msg.socialId === receivedMessage.socialId
               );
               console.log('Received message:', receivedMessage);
               if (isDuplicate) return prev;
@@ -204,9 +206,11 @@ const ChatRoom = () => {
   const sendMessage = () => {
     if (client && client.connected && newMessage.trim()) {
       const name = localStorage.getItem("name");
+      const socialId = localStorage.getItem("socialId");
       const message = {
         sender: name,
         content: newMessage,
+        socialId: socialId,
       };
 
       client.send(`/publish/${roomId}`, {}, JSON.stringify(message));
@@ -276,6 +280,7 @@ const ChatRoom = () => {
           content: imageUrl,
           sender: localStorage.getItem("name") || "unknown",
           roomId,
+          socialId: localStorage.getItem("socialId") || "unknown",
         })
       );
   
@@ -299,10 +304,10 @@ const ChatRoom = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-3" ref={chatBoxRef}>
-  {messages.map((msg, idx) => {
-    const username = localStorage.getItem('name');
-    const isMine = msg.sender === username;
-
+  {messages.map((messages, idx) => {
+    const socialId = localStorage.getItem('socialId');
+    const isMine = messages.socialId === socialId; // 현재 사용자의 socialId와 비교하여 내 메시지인지 확인
+    //console.log(messages.socialId);
     return (
         <div
           key={idx}
@@ -311,7 +316,7 @@ const ChatRoom = () => {
           {/* 이름은 상대방만 표시 */}
           {!isMine && (
             <span className="text-xs text-gray-500 mb-1 ml-2">
-              {msg.sender}
+              {messages.sender}
             </span>
            
           )}
@@ -325,14 +330,14 @@ const ChatRoom = () => {
             }`}
           >
          
-            {msg.messageType === 'IMAGE' ? (
+            {messages.messageType === 'IMAGE' ? (
               <img
-                src={msg.content}
+                src={messages.content}
                 alt="uploaded"
                 className="max-w-full h-auto rounded-lg"
               />
             ) : (
-              <span>{msg.content}</span>
+              <span>{messages.content}</span>
             )}
           </div>
         </div>

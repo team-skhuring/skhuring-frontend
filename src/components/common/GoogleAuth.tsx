@@ -23,9 +23,11 @@ export default function GoogleAuth() {
       const token = response.data.token;
       const name = response.data.name;
       const id = response.data.id;
+      const socialId = response.data.socialId;
       localStorage.setItem('token', token);
       localStorage.setItem('name', name);
       localStorage.setItem('id', id);
+      localStorage.setItem('socialId', socialId);
       navigate('/'); // 인증 후 리디렉션
     } catch (error) {
       console.error('Google login error', error);
