@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import ChatMemoModal from '../../components/layout/ChatMemoModal';
 import axios from 'axios';
 
 const ChatRoom = () => {
@@ -26,6 +27,10 @@ const ChatRoom = () => {
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [rating, setRating] = useState(0);
+
+  const [showMemo, setShowMemo] = useState(false);
+  const [memoTitle, setMemoTitle] = useState("");
+  const [memoContent, setMemoContent] = useState("");
 
   const handleSubmitRating = () => {
     const score = rating * 5;
@@ -211,6 +216,7 @@ const ChatRoom = () => {
         sender: name,
         content: newMessage,
         socialId: socialId,
+        messageType: "TEXT",
       };
 
       client.send(`/publish/${roomId}`, {}, JSON.stringify(message));
@@ -272,22 +278,45 @@ const ChatRoom = () => {
       const data = await res.json(); // 서버에서 문자열 형태로 반환받음
       const imageUrl = data.url;
   
-      client.send(
-        `/publish/${roomId}`, // sendMessage와 동일하게 publish 경로 사용
-        {},
-        JSON.stringify({
-          messageType: "IMAGE",
-          content: imageUrl,
-          sender: localStorage.getItem("name") || "unknown",
-          roomId,
-          socialId: localStorage.getItem("socialId") || "unknown",
-        })
-      );
+      const imageMessage = {
+        messageType: "IMAGE",
+        content: imageUrl,
+        sender: localStorage.getItem("name") || "unknown",
+        roomId,
+        socialId: localStorage.getItem("socialId") || "unknown",
+      };
+      
+      client.send(`/publish/${roomId}`, {}, JSON.stringify(imageMessage));
+      // ✅ 클라이언트에서도 즉시 상태 반영
+      setMessages(prev => [...prev, imageMessage]);
   
     } catch (error) {
       console.error("이미지 업로드 또는 전송 실패", error);
     }
   }
+
+  const handleSaveMemo = async () => {
+    try {
+      await axios.post("http://localhost:8070/memo/create", {
+        title: memoTitle,
+        content: memoContent,
+        roomName, // 옵션: 현재 채팅방 이름도 같이 보낼 수 있음
+        socialId: localStorage.getItem("socialId"),
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      });
+      alert("메모가 저장되었습니다.");
+      setShowMemo(false);
+      setMemoTitle("");
+      setMemoContent("");
+    } catch (error) {
+      console.error("메모 저장 실패", error);
+      alert("저장 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <div className="flex h-screen">
@@ -298,10 +327,22 @@ const ChatRoom = () => {
             <div className="text-lg font-semibold">{roomName}</div>
             <div className="text-sm text-green-500">● online</div>
           </div>
-          <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded font-medium text-sm">
-            Call
+          <button className="bg-purple-100 text-purple-700 px-4 py-2 rounded font-medium text-sm" 
+          onClick={() => setShowMemo(true)}>
+            Memo
           </button>
-        </div>
+    </div>
+    {showMemo && (
+  <ChatMemoModal
+    memoTitle={memoTitle}
+    memoContent={memoContent}
+    setMemoTitle={setMemoTitle}
+    setMemoContent={setMemoContent}
+    onClose={() => setShowMemo(false)}
+    onSave={handleSaveMemo}
+  />
+)}
+    
 
         <div className="flex-1 overflow-y-auto p-6 space-y-3" ref={chatBoxRef}>
   {messages.map((messages, idx) => {
