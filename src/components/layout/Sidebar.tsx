@@ -12,7 +12,7 @@ const sidebarItems = [
     label: 'mychat',
     icon: <MessageCircle size={18} />,
     chevron: false,
-    location: '/mychat/1',
+    location: '/mychat/0',
   },
   {
     label: 'mypage',

@@ -4,6 +4,7 @@ import { Stomp } from '@stomp/stompjs';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import ChatMemoModal from '../../components/layout/ChatMemoModal';
 import axios from 'axios';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
 
 const ChatRoom = () => {
   const navigate = useNavigate();
@@ -13,10 +14,12 @@ const ChatRoom = () => {
   const chatBoxRef = useRef<HTMLDivElement | null>(null);
   const [client, setClient] = useState<any>(null);
   const [isSurveyOpen, setIsSurveyOpen] = useState(false);
+  const [roomsWithUnread, setRoomsWithUnread] = useState<any[]>([]);
 
-
+  const userId = localStorage.getItem('id');
   const location = useLocation();
-  const roomName = location.state?.roomTitle || '채팅방';
+  const role = location.state?.role;
+  const roomName = location.state?.roomTitle || '테스트채팅방';
   const [showForm, setShowForm] = useState(false);
   const [roomTitle, setRoomTitle] = useState('');
   const [category, setCategory] = useState('IT'); // 예시 카테고리
@@ -132,9 +135,33 @@ const ChatRoom = () => {
   useEffect(() => {
     console.log(chatRooms);  // chatRooms 상태 값 확인
   }, [chatRooms]);
-  const handleJoinRoom = (roomId: string, roomTitle: string) => {
-    // 채팅방 제목을 클릭하면 해당 채팅방으로 이동
-    navigate(`/mychat/${roomId}`, { state: { roomTitle: roomTitle } });
+  const handleJoinRoom = async (roomId : number, roomTitle: String) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("id"); 
+  
+      // // 1. 메시지 읽음 처리 API 호출
+      // await axios.post(
+      //   `http://localhost:8070/chat/chatrooms/${roomId}/read`,
+      //   null, // POST 바디가 없으면 null or {}
+      //   {
+      //     params: { userId }, // 쿼리 파라미터로 userId 전달
+      //     headers: {
+      //       Authorization: `Bearer ${token}`,
+      //       "Content-Type": "application/json",
+      //     },
+      //   }
+      // );
+      // if (userId) {
+      //   fetchChatRooms(userId, setRoomsWithUnread);
+      // }
+  
+      // 2. 읽음 처리 성공하면 채팅방으로 이동
+      navigate(`/mychat/${roomId}`, { state: { roomTitle } });
+    } catch (error) {
+      console.error("참가 실패", error);
+      alert("채팅방 입장 중 오류가 발생했습니다.");
+    }
   };
 
   useEffect(() => {
@@ -156,6 +183,23 @@ const ChatRoom = () => {
     fetchChatHistory();
   }, [roomId]);
 
+
+  const refreshChatRooms = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:8070/chat/rooms/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+     // setChatRooms(response.data);
+      setRoomsWithUnread(response.data); // <- 이게 중요!
+    } catch (error) {
+      console.error('채팅방 목록 새로고침 실패', error);
+    }
+  };
+  
+
   
 
   useEffect(() => {
@@ -176,14 +220,33 @@ const ChatRoom = () => {
             setMessages(prev => {
               const isDuplicate = prev.some(
                 msg => msg.content === receivedMessage.content && msg.sender === receivedMessage.sender && msg.messageType === receivedMessage.messageType && msg.socialId === receivedMessage.socialId
+                && msg.chatRole === receivedMessage.chatRole
               );
-              console.log('Received message:', receivedMessage);
+              console.log('Received message:', receivedMessage.chatRole, receivedMessage.content, receivedMessage.sender, receivedMessage.socialId);
               if (isDuplicate) return prev;
               return [...prev, receivedMessage];
             });
+            (async () => {
+              try {
+                const token = localStorage.getItem('token');
+                const userId = localStorage.getItem('id'); // 또는 useState에서 가져온 값
+                await axios.post(
+                  `http://localhost:8070/chatrooms/${roomId}/read?userId=${userId}`,
+                  {},
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                console.log('읽음 처리 완료');
+                await refreshChatRooms();
+              } catch (err) {
+                console.error('읽음 처리 실패', err);
+              }
+            })();
           }
         });
-        
         setClient(stompClient);
       }
     );
@@ -217,8 +280,9 @@ const ChatRoom = () => {
         content: newMessage,
         socialId: socialId,
         messageType: "TEXT",
+        chatRole : role,
       };
-
+      console.log('sendMessage role:', role);
       client.send(`/publish/${roomId}`, {}, JSON.stringify(message));
       setMessages(prev => [...prev, message]);
       setNewMessage('');
@@ -317,13 +381,35 @@ const ChatRoom = () => {
       alert("저장 중 오류가 발생했습니다.");
     }
   };
+  const fetchChatRooms = async (userId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get("http://localhost:8070/chat/with-unread", {
+        params: { userId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+     setRoomsWithUnread(response.data);
+     console.log("채팅방 안읽은:", response.data);
+    } catch (error) {
+      console.error("채팅방 목록을 불러오는 데 실패했습니다.", error);
+    }
+  };
+  useEffect(() => {
+    if (userId) {
+      fetchChatRooms(userId);
+    }
+  }, [userId]);
+  
+  
 
   return (
     <div className="flex h-screen">
       {/* Left Chat Area */}
       <div className="flex flex-col w-3/4 border-r bg-white">
         <div className="flex items-center justify-between p-4 border-b">
-          <div>
+          <div> 
             <div className="text-lg font-semibold">{roomName}</div>
             <div className="text-sm text-green-500">● online</div>
           </div>
@@ -342,48 +428,48 @@ const ChatRoom = () => {
     onSave={handleSaveMemo}
   />
 )}
-    
-
         <div className="flex-1 overflow-y-auto p-6 space-y-3" ref={chatBoxRef}>
-  {messages.map((messages, idx) => {
-    const socialId = localStorage.getItem('socialId');
-    const isMine = messages.socialId === socialId; // 현재 사용자의 socialId와 비교하여 내 메시지인지 확인
-    //console.log(messages.socialId);
-    return (
-        <div
-          key={idx}
-          className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
-        >
-          {/* 이름은 상대방만 표시 */}
-          {!isMine && (
-            <span className="text-xs text-gray-500 mb-1 ml-2">
-              {messages.sender}
-            </span>
-           
-          )}
+        {messages.map((message, idx) => {
+  const socialId = localStorage.getItem('socialId');
+  const isMine = message.socialId === socialId;
 
-          {/* 말풍선 */}
-          <div
-            className={`max-w-xs px-4 py-2 rounded-2xl text-sm shadow-md ${
-              isMine
-                ? 'bg-blue-500 text-white rounded-br-none'
-                : 'bg-gray-100 text-gray-800 rounded-bl-none'
-            }`}
-          >
-         
-            {messages.messageType === 'IMAGE' ? (
-              <img
-                src={messages.content}
-                alt="uploaded"
-                className="max-w-full h-auto rounded-lg"
-              />
-            ) : (
-              <span>{messages.content}</span>
-            )}
-          </div>
+  return (
+    <div
+      key={idx}
+      className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+    >
+      {/* 상대방 이름 + 역할 배지 */}
+      {!isMine && (
+        <div className="flex items-center mb-1 ml-2 space-x-2">
+          <span className="text-xs text-gray-500">{message.sender}</span>
+          {message.chatRole === 'MENTOR' && (
+            <span className="text-xs bg-green-500 text-white rounded px-1">멘토</span>
+          )}
         </div>
-      );
-    })}
+      )}
+
+      {/* 말풍선 */}
+      <div
+        className={`max-w-xs px-4 py-2 rounded-2xl text-sm shadow-md ${
+          isMine
+            ? 'bg-blue-500 text-white rounded-br-none'
+            : 'bg-gray-100 text-gray-800 rounded-bl-none'
+        }`}
+      >
+        {message.messageType === 'IMAGE' ? (
+          <img
+            src={message.content}
+            alt="uploaded"
+            className="max-w-full h-auto rounded-lg"
+          />
+        ) : (
+          <span>{message.content}</span>
+        )}
+      </div>
+    </div>
+  );
+})}
+
   </div>
 <div className="flex items-center p-4 border-t">
       <input
@@ -463,26 +549,35 @@ const ChatRoom = () => {
         
 
     <div className="space-y-4">
-      {chatRooms.map((room) => (
+      {roomsWithUnread.map((room) => (
         <div key={room.roomId} className="flex items-center space-x-3">
-          {/* 채팅방의 이미지 또는 아이콘 */}
-          <div className="w-10 h-10 rounded-full bg-gray-300" />
-          
+          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+            <UserCircleIcon className="w-6 h-6 text-gray-500" />
+          </div>
+
           {/* 채팅방 제목과 최근 메시지 표시 */}
           <div
-          onClick={() => handleJoinRoom(room.roomId, room.title)}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
+            onClick={() => handleJoinRoom(room.roomId, room.title)}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
           >
             <div className="font-semibold text-sm">{room.title}</div>
-            <div className="text-xs text-gray-500">
-              {/* 최근 메시지 또는 예시 텍스트 */}
-              {room.recentMessage || 'No messages yet'}
+            <div className="flex items-center text-xs text-gray-500 space-x-2">
+              {/* 최근 메시지 */}
+              <span>{room.recentMessage || 'No messages yet'}</span>
+
+              {/* 안읽은 메시지 뱃지 (unreadCount가 0일 경우 숨김)
+              {room.unreadCount > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-semibold px-2 py-[1px] rounded-full min-w-[18px] text-center">
+                  {room.unreadCount}
+                </span>
+              )} */}
             </div>
           </div>
         </div>
       ))}
     </div>
+
       </div>
       {isSurveyOpen && (
   <div className="fixed inset-0 flex items-center justify-center ">
