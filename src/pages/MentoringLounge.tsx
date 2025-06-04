@@ -7,7 +7,6 @@ export default function MentoringLounge() {
 
   const [roomTitle, setRoomTitle] = useState('');
   const [category, setCategory] = useState('IT');
-  const [anonymous, setAnonymous] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
   const [mentors, setMentors] = useState<any[]>([]);
@@ -48,9 +47,9 @@ export default function MentoringLounge() {
     fetchChatRooms();
   }, []);
 
-  const handleRowClick = (roomId: string, roomTitle: string) => {
+  const handleRowClick = (roomId: string, roomTitle: string, role:string) => {
     navigate(`/mychat/${roomId}`, {
-      state: { roomTitle },
+      state: { roomTitle, mentors, role},
     });
   };
 
@@ -60,7 +59,6 @@ export default function MentoringLounge() {
       const response = await axios.post('http://localhost:8070/chat/room', {
         title: roomTitle,
         category,
-        anonymous,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -72,10 +70,9 @@ export default function MentoringLounge() {
       fetchChatRooms();
       setRoomTitle('');
       setCategory('IT');
-      setAnonymous(false);
       setShowForm(false);
 
-      handleRowClick(roomId, roomTitle); 
+      handleRowClick(roomId, roomTitle, 'MENTEE'); 
     } catch (error) {
       alert('채팅방 생성 실패');
       console.error(error);
@@ -99,7 +96,7 @@ export default function MentoringLounge() {
   
       if (response.ok) {
        // alert('채팅방에 입장했습니다.');
-        handleRowClick(roomId, roomTitle); // 채팅방 이동
+        handleRowClick(roomId, roomTitle, role); // 채팅방 이동
       } else {
         const errorMessage = await response.text();
         alert(`오류 발생: ${errorMessage}`);
@@ -184,14 +181,6 @@ export default function MentoringLounge() {
             <option value="성적">성적</option>
             <option value="나눔">나눔</option>
           </select>
-          <label className="flex items-center space-x-2 text-sm">
-            <input
-              type="checkbox"
-              checked={anonymous}
-              onChange={(e) => setAnonymous(e.target.checked)}
-            />
-            <span>익명으로 참여</span>
-          </label>
           <button
             className="w-full bg-purple-500 text-white py-2 rounded"
             onClick={handleCreateRoom}
