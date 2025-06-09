@@ -23,10 +23,11 @@ const KakaoAuth = () => {
       const token = response.data.token;
       const name = response.data.name;
       const id = response.data.id;
+      const socialId = response.data.socialId;
       localStorage.setItem('token', token);
       localStorage.setItem('name', name);
       localStorage.setItem('id', id);
-
+      localStorage.setItem('socialId', socialId);
       navigate('/');
     } catch (error) {
       console.error('Kakao login error', error);

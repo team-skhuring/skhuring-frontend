@@ -19,7 +19,7 @@ export default function MentoringLounge() {
   const fetchChatRooms = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:8070/chat/rooms/list', {
+      const response = await axios.get('/api/chat/rooms/list', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -43,27 +43,31 @@ export default function MentoringLounge() {
   };
 
   useEffect(() => {
-    console.log('fetchChatRooms 실행')
+    console.log('fetchChatRooms 실행');
     fetchChatRooms();
   }, []);
 
-  const handleRowClick = (roomId: string, roomTitle: string, role:string) => {
+  const handleRowClick = (roomId: string, roomTitle: string, role: string) => {
     navigate(`/mychat/${roomId}`, {
-      state: { roomTitle, mentors, role},
+      state: { roomTitle, mentors, role },
     });
   };
 
   const handleCreateRoom = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post('http://localhost:8070/chat/room', {
-        title: roomTitle,
-        category,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        '/api/chat/room',
+        {
+          title: roomTitle,
+          category,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const roomId = response.data;
 
       alert('채팅방이 생성되었습니다!');
@@ -72,17 +76,22 @@ export default function MentoringLounge() {
       setCategory('IT');
       setShowForm(false);
 
-      handleRowClick(roomId, roomTitle, 'MENTEE'); 
+      handleRowClick(roomId, roomTitle, 'MENTEE');
     } catch (error) {
       alert('채팅방 생성 실패');
       console.error(error);
     }
   };
-  const handleEnterRoom = async (e: React.MouseEvent, roomId: string, roomTitle: string, role: string) => {
+  const handleEnterRoom = async (
+    e: React.MouseEvent,
+    roomId: string,
+    roomTitle: string,
+    role: string
+  ) => {
     e.stopPropagation(); // 행 클릭 이벤트 방지
     try {
-      const token = localStorage.getItem("token"); // 토큰 가져오기
-      const response = await fetch('http://localhost:8070/chat/room/join', {
+      const token = localStorage.getItem('token'); // 토큰 가져오기
+      const response = await fetch('/api/chat/room/join', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -90,12 +99,12 @@ export default function MentoringLounge() {
         },
         body: JSON.stringify({
           roomId, // 방 ID
-          role,   // "MENTEE" 또는 "MENTOR"
+          role, // "MENTEE" 또는 "MENTOR"
         }),
       });
-  
+
       if (response.ok) {
-       // alert('채팅방에 입장했습니다.');
+        // alert('채팅방에 입장했습니다.');
         handleRowClick(roomId, roomTitle, role); // 채팅방 이동
       } else {
         const errorMessage = await response.text();
@@ -109,8 +118,11 @@ export default function MentoringLounge() {
 
   // 🔍 필터링된 데이터
   const filteredMentors = mentors.filter((mentor) => {
-    const matchesKeyword = mentor.name.toLowerCase().includes(searchKeyword.toLowerCase());
-    const matchesCategory = filterCategory === '전체' || mentor.category === filterCategory;
+    const matchesKeyword = mentor.name
+      .toLowerCase()
+      .includes(searchKeyword.toLowerCase());
+    const matchesCategory =
+      filterCategory === '전체' || mentor.category === filterCategory;
     return matchesKeyword && matchesCategory;
   });
 
@@ -211,7 +223,9 @@ export default function MentoringLounge() {
               >
                 <td className="py-4 px-6 font-medium">{mentor.name}</td>
                 <td className="py-4 px-6">{mentor.category}</td>
-                <td className="py-4 px-6">{mentor.mentor ? '멘토있음' : '멘토없음'}</td>
+                <td className="py-4 px-6">
+                  {mentor.mentor ? '멘토있음' : '멘토없음'}
+                </td>
                 <td className="py-4 px-6">{mentor.creator}</td>
                 <td className="py-4 px-6">{mentor.count}</td>
                 <td className="py-4 px-6 text-center">
@@ -228,13 +242,17 @@ export default function MentoringLounge() {
                 <td className="py-4 px-6 text-center">
                   <button
                     className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                    onClick={(e) => handleEnterRoom(e, mentor.id, mentor.name, 'MENTOR')}
+                    onClick={(e) =>
+                      handleEnterRoom(e, mentor.id, mentor.name, 'MENTOR')
+                    }
                   >
                     멘토
                   </button>
                   <button
                     className="bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={(e) => handleEnterRoom(e, mentor.id, mentor.name, 'MENTEE')}
+                    onClick={(e) =>
+                      handleEnterRoom(e, mentor.id, mentor.name, 'MENTEE')
+                    }
                   >
                     멘티
                   </button>
