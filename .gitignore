@@ -15,3 +15,6 @@ build/
 
 # 환경 파일
 .env
+
+# history 파일
+.history

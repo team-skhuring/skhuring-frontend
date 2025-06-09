@@ -1,9 +1,11 @@
 {
   "include": [
-    "**/*",
+    "src/**/*", // src 폴더 내 모든 파일
+    "components/**/*", // components 폴더 내 모든 파일
     "**/.server/**/*",
     "**/.client/**/*",
-    ".react-router/types/**/*"
+    ".react-router/types/**/*",
+    "src/routes.tsx"
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
@@ -15,7 +17,7 @@
     "rootDirs": [".", "./.react-router/types"],
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["src/*"]
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
