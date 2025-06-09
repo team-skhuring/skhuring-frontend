@@ -31,6 +31,14 @@ export const Sidebar = () => {
     setActivePath(location.pathname);
   }, [location.pathname]);
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('name');
+    localStorage.removeItem('id');
+    localStorage.removeItem('socialId');
+    navigate('/');
+  };
+
   return (
     <aside className="w-64 bg-white h-screen flex flex-col justify-between p-6 shadow-[8px_0_30px_rgba(173,216,230,0.2)] z-10">
       <div>
@@ -78,7 +86,7 @@ export const Sidebar = () => {
 
       <div className="space-y-6">
         <div className="flex items-center gap-3 text-sm text-red-500 font-medium cursor-pointer">
-          <LogOut size={18} />
+          <LogOut size={18} onClick={logout} />
           <span>Logout Account</span>
         </div>
       </div>
