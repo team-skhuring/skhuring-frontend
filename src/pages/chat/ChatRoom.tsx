@@ -211,7 +211,7 @@ const ChatRoom = () => {
   };
 
   useEffect(() => {
-    const sock = new SockJS('http://localhost:8070/connect');
+    const sock = new SockJS('/api/connect');
     const stompClient = Stomp.over(sock);
     const token = localStorage.getItem('token');
     const socialId = localStorage.getItem('socialId');
