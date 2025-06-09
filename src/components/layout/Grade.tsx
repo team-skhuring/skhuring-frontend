@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import type { ReactElement } from 'react';
+import { FaMedal, FaStar } from 'react-icons/fa';
+import { GiCutDiamond, GiShieldReflect } from 'react-icons/gi';
 
 const gradeThresholds: Record<string, number> = {
   Bronze: 100,
@@ -18,12 +20,12 @@ const gradeColors: Record<string, string> = {
   Diamond: '#b9f2ff',
 };
 
-const gradeIcons: Record<string, string> = {
-  Bronze: 'military_tech',
-  Silver: 'emoji_events',
-  Gold: 'star',
-  Platinum: 'workspace_premium',
-  Diamond: 'diamond',
+const gradeIcons: Record<string, ReactElement> = {
+  Bronze: <FaMedal className="text-[#cd7f32]" />,
+  Silver: <FaMedal className="text-[#c0c0c0]" />,
+  Gold: <FaStar className="text-[#ffd700]" />,
+  Platinum: <GiShieldReflect className="text-[#e5e4e2]" />,
+  Diamond: <GiCutDiamond className="text-[#b9f2ff]" />,
 };
 
 const getGradeInfo = (point: number) => {
@@ -65,7 +67,7 @@ export default function Grade({ point }: GradeProps) {
   return (
     <div className="mt-12">
       <div className="flex items-center space-x-2">
-        <span className="material-icons text-gray-500">{icon}</span>
+        {icon}
         <span className="text-lg font-medium">{currentGrade}</span>
       </div>
       <div className="mt-2 w-full h-2 bg-gray-200 rounded-full">
