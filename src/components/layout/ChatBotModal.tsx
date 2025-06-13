@@ -1,50 +1,48 @@
 // components/ChatBotModal.tsx
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
 
 interface ChatBotModalProps {
   onClose: () => void;
 }
 
 const ChatBotModal: React.FC<ChatBotModalProps> = ({ onClose }) => {
-  const [sentence, setSentence] = useState("");
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [sentence, setSentence] = useState('');
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
     if (!question.trim()) return;
-  
+
     const token = localStorage.getItem('token'); // 또는 Recoil, Redux 등에서 불러올 수도 있음
-  
-  
+
     setLoading(true);
-    setAnswer("");
-  
+    setAnswer('');
+
     try {
       const response = await axios.post(
-        "http://localhost:8070/ai/qa",
+        'api/ai/qa',
         {
           sentence,
           question,
         },
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`, // 인증 토큰 추가
           },
         }
       );
-  
-      setAnswer(response.data.answer || "답변을 받을 수 없습니다.");
+
+      setAnswer(response.data.answer || '답변을 받을 수 없습니다.');
     } catch (err) {
-      console.error("AI 요청 실패:", err);
-      setAnswer("에러가 발생했습니다.");
+      console.error('AI 요청 실패:', err);
+      setAnswer('에러가 발생했습니다.');
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -59,7 +57,7 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ onClose }) => {
             ×
           </button>
         </div>
-  
+
         {/* 문맥 입력 */}
         <textarea
           rows={2}
@@ -69,7 +67,7 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ onClose }) => {
           onChange={(e) => setSentence(e.target.value)}
           disabled={loading}
         />
-  
+
         {/* 질문 입력 */}
         <textarea
           rows={2}
@@ -79,13 +77,15 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ onClose }) => {
           onChange={(e) => setQuestion(e.target.value)}
           disabled={loading}
         />
-  
+
         {/* 질문 전송 버튼 */}
         <button
           onClick={handleSend}
           disabled={loading}
           className={`px-4 py-2 rounded font-medium mb-4 text-white ${
-            loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+            loading
+              ? 'bg-blue-300 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
           }`}
         >
           {loading ? (
@@ -113,18 +113,17 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ onClose }) => {
               <span>질문 중...</span>
             </div>
           ) : (
-            "질문하기"
+            '질문하기'
           )}
         </button>
-  
+
         {/* 응답 출력 */}
         <div className="border rounded-md p-3 bg-gray-100 h-40 overflow-y-auto whitespace-pre-line text-gray-800">
-          {answer || "여기에 챗봇의 응답이 표시됩니다."}
+          {answer || '여기에 챗봇의 응답이 표시됩니다.'}
         </div>
       </div>
     </div>
   );
-  
 };
 
 export default ChatBotModal;
