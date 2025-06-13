@@ -22,7 +22,7 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ onClose }) => {
 
     try {
       const response = await axios.post(
-        'api/ai/qa',
+        '/api/ai/qa',
         {
           sentence,
           question,
